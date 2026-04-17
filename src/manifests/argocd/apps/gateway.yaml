@@ -1,0 +1,42 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: gateway-api
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+  finalizers:
+    - argocd.argoproj.io/resources-finalizer
+spec:
+  project: default
+  sources:
+    - name: gateway-api
+      repoURL: https://github.com/kubernetes-sigs/gateway-api.git
+      targetRevision: v1.5.1
+      path: config/crd
+    - name: gaie
+      repoURL: https://github.com/kubernetes-sigs/gateway-api-inference-extension.git
+      targetRevision: v1.5.0
+      path: config/crd
+    - name: bbr
+      repoURL: registry.k8s.io/gateway-api-inference-extension/charts
+      chart: body-based-routing
+      targetRevision: v1.5.0
+      helm:
+        releaseName: body-based-router
+        namespace: istio-system
+        valuesObject:
+          provider:
+            name: istio
+    - name: gateway
+      repoURL: https://github.com/pauldotyu/Build26-LAB510.git
+      targetRevision: HEAD
+      path: src/manifests/airunway/gateway
+  destination:
+    server: https://kubernetes.default.svc
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - ServerSideApply=true

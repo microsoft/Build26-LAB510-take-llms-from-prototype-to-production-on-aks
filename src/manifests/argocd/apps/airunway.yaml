@@ -1,0 +1,29 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: controller
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+  finalizers:
+    - argocd.argoproj.io/resources-finalizer
+spec:
+  project: default
+  sources:
+    - name: controller
+      repoURL: https://github.com/pauldotyu/Build26-LAB510.git
+      targetRevision: HEAD
+      path: src/manifests/airunway/controller
+    - name: providers
+      repoURL: https://github.com/pauldotyu/Build26-LAB510.git
+      targetRevision: HEAD
+      path: src/manifests/airunway/providers
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - ServerSideApply=true
