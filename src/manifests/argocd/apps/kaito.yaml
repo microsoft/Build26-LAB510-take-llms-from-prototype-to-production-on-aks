@@ -34,6 +34,18 @@ spec:
   destination:
     server: https://kubernetes.default.svc
     namespace: kaito-workspace
+  ignoreDifferences:
+    - group: ""
+      kind: Secret
+      name: workspace-webhook-cert
+      namespace: kaito-workspace
+      jsonPointers:
+        - /data
+    - group: admissionregistration.k8s.io
+      kind: ValidatingWebhookConfiguration
+      name: validation.workspace.kaito.sh
+      jqPathExpressions:
+        - .webhooks[].rules
   syncPolicy:
     automated:
       prune: true
