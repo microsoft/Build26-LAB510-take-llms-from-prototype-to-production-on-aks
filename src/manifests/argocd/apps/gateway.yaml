@@ -16,12 +16,12 @@ spec:
       path: config/crd
     - name: gaie
       repoURL: https://github.com/kubernetes-sigs/gateway-api-inference-extension.git
-      targetRevision: v1.3.1
+      targetRevision: v1.5.0
       path: config/crd
     - name: bbr
       repoURL: registry.k8s.io/gateway-api-inference-extension/charts
       chart: body-based-routing
-      targetRevision: v1.3.1
+      targetRevision: v1.5.0
       helm:
         releaseName: body-based-router
         namespace: istio-system
