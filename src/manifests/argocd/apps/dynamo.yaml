@@ -42,13 +42,13 @@ spec:
     - group: admissionregistration.k8s.io
       kind: MutatingWebhookConfiguration
       name: podcliqueset-defaulting-webhook
-      jqPathExpressions:
-        - .webhooks[].clientConfig.caBundle
+      jsonPointers:
+        - /webhooks
     - group: admissionregistration.k8s.io
       kind: ValidatingWebhookConfiguration
       name: podcliqueset-validating-webhook
-      jqPathExpressions:
-        - .webhooks[].clientConfig.caBundle
+      jsonPointers:
+        - /webhooks
   syncPolicy:
     automated:
       prune: true
