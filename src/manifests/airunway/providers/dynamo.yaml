@@ -196,7 +196,7 @@ spec:
         - --health-probe-bind-address=:8081
         command:
         - /provider
-        image: ghcr.io/pauldotyu/airunway/dynamo-provider:685a4a9
+        image: ghcr.io/pauldotyu/airunway/dynamo-provider:2f0dfb0
         livenessProbe:
           httpGet:
             path: /healthz
