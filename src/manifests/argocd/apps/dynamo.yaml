@@ -33,12 +33,29 @@ spec:
       kind: CustomResourceDefinition
       jsonPointers:
         - /spec/versions
+    - group: apps
+      kind: StatefulSet
+      name: dynamo-platform-nats
+      namespace: dynamo-system
+      jsonPointers:
+        - /spec/volumeClaimTemplates
+    - group: admissionregistration.k8s.io
+      kind: MutatingWebhookConfiguration
+      name: podcliqueset-defaulting-webhook
+      jqPathExpressions:
+        - .webhooks[].rules
+    - group: admissionregistration.k8s.io
+      kind: ValidatingWebhookConfiguration
+      name: podcliqueset-validating-webhook
+      jqPathExpressions:
+        - .webhooks[].rules
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
     syncOptions:
       - ServerSideApply=true
+      - RespectIgnoreDifferences=true
     retry:
       limit: 5
       backoff:
