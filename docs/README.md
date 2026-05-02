@@ -15,7 +15,6 @@ Set environment variables
 ```bash
 RG_NAME=$(terraform output -raw rg_name)
 AKS_NAME=$(terraform output -raw aks_name)
-LFS_NAME=$(terraform output -raw lfs_name)
 ```
 
 Navigate back to the root of the repo
@@ -36,13 +35,8 @@ az aks get-credentials \
 Make sure the Argo CD installations are up and running
 
 ```bash
-kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo;
-kubectl -n argocd port-forward svc/argo-cd-argocd-server 9000:80 &
-
-# or 
-
-kubectl -n argocd port-forward svc/argo-cd-argocd-server 9000:80 &>/dev/null &
 ARGOCD_PWD=$(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
+kubectl -n argocd port-forward svc/argo-cd-argocd-server 9000:80 &>/dev/null &
 argocd login localhost:9000 --username admin --password "$ARGOCD_PWD" --insecure
 argocd app list
 ```
