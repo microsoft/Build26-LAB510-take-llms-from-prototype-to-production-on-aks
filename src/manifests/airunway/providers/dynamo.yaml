@@ -4,19 +4,6 @@ metadata:
   name: dynamo-system
 ---
 apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: pvc-lustre
-  namespace: dynamo-system
-spec:
-  accessModes:
-    - ReadWriteMany
-  resources:
-    requests:
-      storage: 4Ti
-  storageClassName: azurelustre-static
----
-apiVersion: v1
 kind: ServiceAccount
 metadata:
   labels:
