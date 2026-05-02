@@ -37,7 +37,13 @@ Make sure the Argo CD installations are up and running
 ```bash
 ARGOCD_PWD=$(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
 kubectl -n argocd port-forward svc/argo-cd-argocd-server 9000:80 &>/dev/null &
+```
+
+```bash
 argocd login localhost:9000 --username admin --password "$ARGOCD_PWD" --insecure
+```
+
+```bash
 argocd app list
 ```
 
