@@ -1,0 +1,14 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: azurelustre-static
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+provisioner: azurelustre.csi.azure.com
+parameters:
+  mgs-ip-address: "10.21.1.5"
+reclaimPolicy: Retain
+volumeBindingMode: Immediate
+mountOptions:
+  - noatime
+  - flock

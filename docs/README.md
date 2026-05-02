@@ -47,12 +47,6 @@ argocd login localhost:9000 --username admin --password "$ARGOCD_PWD" --insecure
 argocd app list
 ```
 
-Wait for the grove-operator pod to stabilize. On initial install, the grove operator's built-in cert-controller refreshes webhook TLS certificates, writes them to a secret, and exits (exit code 0) expecting a restart to pick up the new certs. This causes a brief CrashLoopBackOff that resolves itself after 1-2 restarts once the certs stabilize. If it persists, run:
-
-```sh
-kubectl rollout restart -n dynamo-system deploy grove-operator
-```
-
 ## Getting Started with AI Runway
 
 To run the AI Runway dashboard app from source, clone the repo
