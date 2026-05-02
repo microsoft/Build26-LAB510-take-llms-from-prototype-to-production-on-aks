@@ -114,8 +114,6 @@ This is where you'll see all the AI inference options available in your cluster 
 
 In the terminal run the following to deploy all the supported inference providers:
 
-
-
 Within a minute or so, the NVIDIA Dynamo inference provider should appear in the Available Runtimes section, indicating that it is ready for deployment, (but not quite. You still need to deploy the runtime itself to make it fully operational??).
 
 In the **Dynamo Installation** section, you will find the steps to deploy the NVIDIA Dynamo runtime itself. This involves installing the Helm chart which you can simply copy and paste into your terminal to deploy the runtime. (or click the Install button in the UI??)
@@ -135,7 +133,6 @@ You should see the model's output in your terminal, indicating that the deployed
 Delete the model by clicking on the **Delete** button in the model details page.
 
 Let's move on to a more advanced scenario.
-
 
 ```
 kubectl apply -f - <<EOF
@@ -168,7 +165,6 @@ spec:
       type: nvidia.com/gpu
 EOF
 ```
-
 
 ```
 kubectl apply -f - <<EOF
@@ -243,14 +239,6 @@ curl -skSL https://raw.githubusercontent.com/kubernetes-sigs/azurelustre-csi-dri
 ```
 
 ```bash
-LFS_IP=$(az amlfs show \
---name $LFS_NAME \
---resource-group $RG_NAME \
---query clientInfo.mgsAddress \
---output tsv)
-```
-
-```bash
 kubectl apply -f - <<EOF
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
@@ -258,7 +246,7 @@ metadata:
   name: azurelustre-static
 provisioner: azurelustre.csi.azure.com
 parameters:
-  mgs-ip-address: $LFS_IP
+  mgs-ip-address: "10.21.1.5"
 reclaimPolicy: Retain
 volumeBindingMode: Immediate
 mountOptions:
