@@ -9,15 +9,10 @@ metadata:
     - resources-finalizer.argocd.argoproj.io
 spec:
   project: default
-  sources:
-  - name: azurelustre
+  source:
     repoURL: https://github.com/pauldotyu/Build26-LAB510.git
     targetRevision: HEAD
     path: src/manifests/lustre
-  - name: sc
-    repoURL: https://github.com/pauldotyu/Build26-LAB510.git
-    targetRevision: HEAD
-    path: src/manifests/airunway/storage
   destination:
     server: https://kubernetes.default.svc
     namespace: default

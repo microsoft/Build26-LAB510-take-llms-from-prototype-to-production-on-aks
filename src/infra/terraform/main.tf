@@ -257,6 +257,30 @@ resource "kubectl_manifest" "argo_cd_app" {
   ]
 }
 
+resource "kubectl_manifest" "azurelustre_storageclass" {
+  yaml_body = yamlencode({
+    apiVersion = "storage.k8s.io/v1"
+    kind       = "StorageClass"
+    metadata = {
+      name = "azurelustre-static"
+    }
+    provisioner    = "azurelustre.csi.azure.com"
+    parameters     = {
+      "mgs-ip-address" = azurerm_managed_lustre_file_system.example.mgs_address
+    }
+    reclaimPolicy    = "Retain"
+    volumeBindingMode = "Immediate"
+    mountOptions = [
+      "noatime",
+      "flock"
+    ]
+  })
+  depends_on = [
+    azurerm_kubernetes_cluster.example,
+    azurerm_managed_lustre_file_system.example
+  ]
+}
+
 resource "azurerm_subnet" "aks_inference" {
   name                 = "inference"
   resource_group_name  = azurerm_resource_group.example.name
