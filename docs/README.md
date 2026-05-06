@@ -35,7 +35,7 @@ The lab VM has these pre-installed. If you're running outside the lab environmen
 If you're not using the Skillable lab environment, you can provision the infrastructure yourself using the Terraform configuration in this repository:
 
 ```bash
-cd demos/workshop
+cd src/infra/terraform
 terraform init
 terraform apply
 ```
@@ -47,73 +47,18 @@ RG_NAME=$(terraform output -raw rg_name)
 AKS_NAME=$(terraform output -raw aks_name)
 
 az aks get-credentials \
-  --resource-group $RG_NAME \
-  --name $AKS_NAME \
-  --overwrite
+--resource-group $RG_NAME \
+--name $AKS_NAME \
+--overwrite
 ```
 
 > **Note:** The Terraform configuration requires an Azure subscription with GPU quota (Standard_NC48ads_A100_v4). Request quota increases in advance — GPU quota approvals can take time.
 
-## Module 0: Setup
-
-**Duration:** ~10 minutes
-
-In this module, you'll sign into the services you'll use throughout the workshop and provision your lab infrastructure. By the end, you'll have a running AKS cluster with GPU nodes and the AI Runway dashboard open in your browser.
-
-### Sign Into Services
-
-You'll need to authenticate with three services before starting. Complete each step below before moving on.
-
-#### Log into Azure
-
-Open the Azure portal using the credentials provided by the lab environment. You'll use this subscription for the AKS cluster and supporting resources.
-
-![Azure portal sign-in page](https://placehold.co/600x400)
-
-#### Log into GitHub
-
-Navigate to `https://github.com/enterprises/skillable-events/sso` and authenticate with your lab-provided GitHub Enterprise account. This gives you access to the workshop repository and enables GitHub Copilot features.
-
-![GitHub Enterprise SSO login page](https://placehold.co/600x400)
-
-#### Open VS Code Insiders
-
-Launch VS Code Insiders from the taskbar and sign in when prompted. This connects your GitHub account so you can use Copilot with your self-hosted models later in Module 5.
-
-![VS Code Insiders sign-in prompt](https://placehold.co/600x400)
-
-#### Open a Terminal
-
-In VS Code Insiders, open a terminal (`Ctrl+``). It should automatically connect to WSL. All CLI commands for the rest of the workshop will run here.
-
-![VS Code terminal connected to WSL](https://placehold.co/600x400)
-
-### Connect to Your Cluster
-
-The lab environment comes with an AKS cluster already provisioned — including GPU node pools, networking, Azure Managed Lustre storage, and all pre-installed components (GPU Operator, Istio, ArgoCD (more on this at the end), AI Runway controller, and provider controllers).
-
-**Log into the Azure CLI:**
-
-```bash
-az login
-```
-
-**Connect to the AKS cluster:**
-
-```bash
-az aks get-credentials \
---resource-group rg-msbuildlab510 \
---name aks-msbuildlab510 \
---overwrite
-```
-
 **Verify the connection** — confirm you can reach the cluster:
 
 ```bash
-kubectl get nodes
+kubectl cluster-info
 ```
-
-You should see nodes listed — you'll inspect them more closely in Module 2.
 
 ### Clone the AI Runway Repository
 
