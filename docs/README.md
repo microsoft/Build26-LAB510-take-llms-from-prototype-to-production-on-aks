@@ -339,7 +339,7 @@ All pods should be **Running**.
 **Check Gateway API CRDs:**
 
 ```bash
-kubectl get crd | grep -E "gateways|httproutes|inferencepools"
+kubectl get crd | grep networking.k8s.io
 ```
 
 **Check the inference gateway:**
