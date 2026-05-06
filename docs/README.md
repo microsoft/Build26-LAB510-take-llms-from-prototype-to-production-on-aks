@@ -21,14 +21,14 @@ Everything else — GPU operators, inference engines, Gateway API, ArgoCD — wi
 
 The lab VM has these pre-installed. If you're running outside the lab environment, ensure you have:
 
-| Tool | Purpose |
-|------|---------|
-| [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli) | Manage Azure resources and AKS credentials |
-| [kubectl](https://kubernetes.io/docs/tasks/tools/) | Interact with Kubernetes clusters |
-| [Bun](https://bun.sh) | Run the AI Runway dashboard (frontend + backend) |
-| [Helm](https://helm.sh/docs/intro/install/) | Used by the dashboard for runtime installation |
-| [jq](https://jqlang.org/) | Parse JSON output from `kubectl` and `curl` |
-| [Git](https://git-scm.com/) | Clone the AI Runway repository |
+| Tool                                                                 | Purpose                                          |
+| -------------------------------------------------------------------- | ------------------------------------------------ |
+| [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli) | Manage Azure resources and AKS credentials       |
+| [kubectl](https://kubernetes.io/docs/tasks/tools/)                   | Interact with Kubernetes clusters                |
+| [Bun](https://bun.sh)                                                | Run the AI Runway dashboard (frontend + backend) |
+| [Helm](https://helm.sh/docs/intro/install/)                          | Used by the dashboard for runtime installation   |
+| [jq](https://jqlang.org/)                                            | Parse JSON output from `kubectl` and `curl`      |
+| [Git](https://git-scm.com/)                                          | Clone the AI Runway repository                   |
 
 ### Self-Provisioning (Outside the Lab)
 
