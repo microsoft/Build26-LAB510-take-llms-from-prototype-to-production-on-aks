@@ -53,7 +53,8 @@ az aks get-credentials \
 --overwrite
 ```
 
-> **Note:** The Terraform configuration requires an Azure subscription with GPU quota (Standard_NC48ads_A100_v4). Request quota increases in advance — GPU quota approvals can take time.
+> [!NOTE]
+> The Terraform configuration requires an Azure subscription with GPU quota (Standard_NC48ads_A100_v4). Request quota increases in advance — GPU quota approvals can take time.
 
 **Verify the connection** — confirm you can reach the cluster:
 
