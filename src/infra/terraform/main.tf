@@ -226,7 +226,7 @@ resource "kubectl_manifest" "argo_cd_app" {
     apiVersion = "argoproj.io/v1alpha1"
     kind       = "Application"
     metadata = {
-      name       = "airunway-app-of-apps"
+      name       = "app-of-apps"
       namespace  = "argocd"
       finalizers = ["resources-finalizer.argocd.argoproj.io"]
     }
