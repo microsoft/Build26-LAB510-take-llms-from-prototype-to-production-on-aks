@@ -5,7 +5,7 @@ description: Moving an AI model from experiment to production is hard. Learn abo
 
 ## Overview
 
-AI Runway is an open-source accelerator that simplifies deploying LLMs on Kubernetes. By treating models as native Kubernetes resources, AI Runway offers a single interface that adapts to multiple inference backends. In this workshop, you will deploy LLMs on Azure Kubernetes Service (AKS) CPU nodes and GPU nodes, implement custom resources for scaling and networking, configure GPU and latency monitoring, and show one potential option of integrating it into CI/CD pipelines with GitOps and ArgoCD.
+AI Runway is an open-source accelerator that simplifies deploying LLMs on Kubernetes. By treating models as native Kubernetes resources, AI Runway offers a single interface that adapts to multiple inference backends. In this workshop, you will deploy LLMs on Azure Kubernetes Service (AKS) CPU nodes and GPU nodes, implement custom resources for scaling and networking, configure GPU and latency monitoring, and show one potential option of integrating it into CI/CD pipelines with GitOps and Argo CD.
 
 ## Prerequisites
 
@@ -15,11 +15,11 @@ This workshop assumes you have:
 - **Basic AKS familiarity** - You've worked with Azure Kubernetes Service before (provisioning, connecting, node pools)
 - **A HuggingFace account** (recommended) - Required only if you want to deploy gated models (e.g., Meta Llama) but recommended to avoid throttling. You can create one at [huggingface.co/join](https://huggingface.co/join)
 
-Everything else - GPU operators, inference engines, Gateway API, ArgoCD - will be explained as you encounter it.
+Everything else - GPU operators, inference engines, Gateway API, Argo CD - will be explained as you encounter it.
 
 ### Required Tools
 
-The lab VM has these pre-installed. If you're running outside this lab environment, ensure you have:
+Before you proceed with the lab environment, ensure you have the following:
 
 | Tool                                                                 | Purpose                                          |
 | -------------------------------------------------------------------- | ------------------------------------------------ |
@@ -33,7 +33,15 @@ The lab VM has these pre-installed. If you're running outside this lab environme
 
 ### Self-Provisioning (Outside the Lab)
 
-If you're not using the Skillable lab environment, you can provision the infrastructure yourself using the Terraform configuration in this repository:
+You can provision the necessary infrastructure using the Terraform configuration in this repository.
+
+Start by opening a terminal and log in to your Azure account:
+
+```bash
+az login
+```
+
+Then navigate to the Terraform directory and apply the configuration:
 
 ```bash
 cd src/infra/terraform
@@ -41,7 +49,7 @@ terraform init
 terraform apply
 ```
 
-This creates an AKS cluster with CPU and GPU node pools, Azure Managed Lustre storage, and bootstraps all components via ArgoCD. Once complete, grab the outputs and connect:
+This creates a resource group, an AKS cluster (with CPU and GPU node pools), Azure Managed Lustre storage, and bootstraps the AI Runway application components via Argo CD. Once complete, grab the outputs and connect to the cluster:
 
 ```bash
 RG_NAME=$(terraform output -raw rg_name)
@@ -230,7 +238,8 @@ kind: InferenceProviderConfig
 metadata:
   annotations:
     airunway.ai/documentation: https://github.com/kaito-project/airunway/tree/main/docs/providers/kaito.md
-    airunway.ai/installation: '{"description":"Kubernetes AI Toolchain Operator for
+    airunway.ai/installation:
+      '{"description":"Kubernetes AI Toolchain Operator for
       simplified model deployment","defaultNamespace":"kaito-workspace","helmRepos":[{"name":"kaito","url":"https://kaito-project.github.io/kaito/charts/kaito"}],"helmCharts":[{"name":"kaito-workspace","chart":"kaito/workspace","version":"0.10.0","namespace":"kaito-workspace","createNamespace":true}],"steps":[{"title":"Add
       KAITO Helm Repository","command":"helm repo add kaito https://kaito-project.github.io/kaito/charts/kaito","description":"Add
       the KAITO Helm repository."},{"title":"Update Helm Repositories","command":"helm
@@ -251,16 +260,16 @@ spec:
   capabilities:
     cpuSupport: true
     engines:
-    - vllm
-    - llamacpp
+      - vllm
+      - llamacpp
     gpuSupport: true
     servingModes:
-    - aggregated
+      - aggregated
   selectionRules:
-  - condition: '!has(spec.resources.gpu) || spec.resources.gpu.count == 0'
-    priority: 100
-  - condition: spec.engine.type == 'llamacpp'
-    priority: 100
+    - condition: "!has(spec.resources.gpu) || spec.resources.gpu.count == 0"
+      priority: 100
+    - condition: spec.engine.type == 'llamacpp'
+      priority: 100
 status:
   lastHeartbeat: "2026-05-05T19:16:19Z"
   ready: true
@@ -398,7 +407,7 @@ Click **Settings** in the sidebar and skim the three tabs:
 - **Integrations** - Check that the GPU Operator, Gateway API (with the gateway endpoint address), and HuggingFace Token sections are visible
 
 > [!note]
-> The Runtimes tab also includes a Prerequisites section that checks whether tools like Helm CLI are available — these are needed when AI Runway installs components into your cluster. There's also a Cluster Autoscaling section that shows whether your cluster is optimally configured for hosting LLMs at scale, including cluster autoscaler enablement and GPU node pool availability..
+> The Runtimes tab also includes a Prerequisites section that checks whether tools like Helm CLI are available — these are needed when AI Runway installs components into your cluster. There's also a Cluster Autoscaling section that shows whether your cluster is optimally configured for hosting LLMs at scale, including cluster autoscaler enablement and GPU node pool availability.
 
 ![Settings page showing runtimes and integrations status](https://placehold.co/600x400)
 
@@ -410,21 +419,18 @@ Some models (e.g., Meta Llama) require accepting a license on HuggingFace before
 
 ![HuggingFace connection in the Integrations tab showing connected status](https://placehold.co/600x400)
 
-> [!note]
-> Even if you don't plan to use gated models, connecting HuggingFace can improve download speeds — unauthenticated users are more likely to be rate-limited.
+> [!help] Even if you don't plan to use gated models, connecting HuggingFace can improve download speeds — unauthenticated users are more likely to be rate-limited.
 
 **What you learned in this module:**
 
 - Your cluster has CPU and GPU node pools, with the GPU Operator, Istio, Gateway API, and all AI Runway components pre-installed
 - The dashboard provides a visual layer over the same Kubernetes resources you can access via **kubectl**
 - Four runtimes are available (KAITO, Dynamo, KubeRay, llm-d) — we'll use KAITO and Dynamo in this workshop
-- All cluster components were bootstrapped using ArgoCD and GitOps — you'll explore how that works in Module 5
+- All cluster components were bootstrapped using Argo CD and GitOps — you'll explore how that works in Module 5
 
 **Next up:** With everything verified and the dashboard open, you'll deploy your first model and see auto-selection in action.
 
 ---
-
-## Module 3: Core Deployment & Validation
 
 ## Module 3: Core Deployment & Validation
 
@@ -448,7 +454,7 @@ Instead of writing YAML by hand, use the AI Runway dashboard to deploy your firs
 
 #### Find the Model
 
-In the dashboard, navigate to the **Models** page and search for **Gemma 2 2B (GGUF)**. Click **Deploy**.
+In the dashboard, navigate to the **Models** page and search for **Gemma 2 2B (GGUF)**. Click **Deploy** to open the deployment form.
 
 ![Model catalog with gemma model selected and Deploy button highlighted](https://placehold.co/600x400)
 
@@ -575,7 +581,7 @@ replicas:
 
 ### Verify Gateway Resources Were Auto-Created
 
-Back in the dashboard, click on the **gemma2-2b-** deployment to see its detail view. Notice the **Access Model** section showing the auto-created routing resources:
+Back in the dashboard, click on the deployment that starts with **gemma2-2b-** to see its detail view. Notice the **Access Model** section showing the auto-created routing resources:
 
 ![Deployment detail page showing gateway status with InferencePool and HTTPRoute](https://placehold.co/600x400)
 
@@ -769,7 +775,19 @@ Verify that resource exists and is owned by the **ModelDeployment**:
 kubectl get dynamographdeployment qwen3-gpu -o yaml | yq '.metadata.ownerReferences'
 ```
 
-Check the gateway resources the core controller created — **InferencePool**:
+Check the downstream pods and confirm they have been scheduled on GPU nodes.
+
+```bash
+kubectl get po -o wide
+```
+
+The pods also have owner references:
+
+```bash
+kubectl get po -o yaml | yq '.items[].metadata.ownerReferences'
+```
+
+Once the pods are running, check the gateway resources the core controller created — **InferencePool**:
 
 ```bash
 kubectl get inferencepool qwen3-gpu -o yaml | yq '.metadata.ownerReferences'
@@ -845,6 +863,8 @@ graph LR
     Decode --> Response([Response])
 ```
 
+!IMAGE[2sq4acxe.png](instructions342912/2sq4acxe.png)
+
 **Why disaggregate?**
 
 - **Independent scaling** - Scale prefill and decode workers separately based on workload
@@ -854,7 +874,24 @@ graph LR
 
 ### Verify Pre-provisioned Model Cache
 
-Large models (7B+ parameters) can take significant time to download from HuggingFace on first deployment. Your lab environment has an Azure Managed Lustre filesystem with a StorageClass and PVC pre-provisioned to solve this. Verify the PVC is available:
+Large models can take significant time to download from HuggingFace on first deployment. Your lab environment has an Azure Managed Lustre filesystem with a StorageClass and PVC pre-provisioned to solve this.
+
+Verify the StorageClass is available:
+
+```bash
+kubectl get sc azurelustre-static
+```
+
+Verify the CSI driver pods for Azure Lustre are running:
+
+```bash
+kubectl get po -n kube-system -l app=csi-azurelustre-controller
+kubectl get po -n kube-system -l app=csi-azurelustre-node
+```
+
+> [!knowledge] The Lustre CSI driver runs a controller on the master node and a daemonset on all nodes to manage volume attachments. This allows any pod in the cluster to mount the Lustre filesystem, which is ideal for sharing large model weights across multiple inference pods. See the [Use Azure Lustre CSI driver for Kubernetes](https://learn.microsoft.com/azure/azure-managed-lustre/use-csi-driver-kubernetes) documentation for more details.
+
+Finally, check the PVC that will be used as the model cache:
 
 ```bash
 kubectl get pvc -n dynamo-system dynamo-pvc
@@ -868,18 +905,18 @@ You should see a **Bound** PVC with **RWX** access mode - this means it can be m
 
 ### Deploy with Disaggregated Serving and Model Caching
 
-Combine both advanced patterns - disaggregated prefill/decode and Lustre-backed model caching - in a single deployment:
+Let's deploy a [Qwen/Qwen3-Coder-30B-A3B-Instruct](https://huggingface.co/Qwen/Qwen3-Coder-30B-A3B-Instruct) model from HuggingFace using Dynamo with disaggregated prefill/decode and Lustre-backed model caching.
 
 ```bash
 kubectl apply -f - <<EOF
 apiVersion: airunway.ai/v1alpha1
 kind: ModelDeployment
 metadata:
-  name: qwen3-gpu-pd
+  name: qwen3-coder-30b
   namespace: dynamo-system
 spec:
   model:
-    id: Qwen/Qwen3-0.6B
+    id: Qwen/Qwen3-Coder-30B-A3B-Instruct
     source: huggingface
     storage:
       volumes:
@@ -890,6 +927,9 @@ spec:
     name: dynamo
   engine:
     type: vllm
+    contextLength: 131072
+    args:
+      dyn-tool-call-parser: "qwen3_coder"
   serving:
     mode: disaggregated
   scaling:
@@ -904,27 +944,29 @@ spec:
 EOF
 ```
 
-> [!knowledge] What happens behind the scenes:
->
-> - **serving.mode**: disaggregated tells the controller this needs separate prefill/decode components
-> - **spec.model.storage.volumes** attaches the pre-provisioned Lustre PVC as a model cache - downloaded weights are stored here and shared across all pods
-> - **provider.name**: dynamo is specified explicitly (Dynamo is also the auto-selection for disaggregated)
-> - **provider.overrides.routerMode**: "kv" enables KV-cache-aware routing between components
-> - The **scaling.prefill** and **scaling.decode** blocks configure each component independently
-
-> [!hint] To keep cost manageable in the lab environment, we're using 1 GPU for prefill and 1 GPU for decode. In production, you might have more decode workers than prefill since decoding is often the bottleneck.
-
-Watch the deployment progress in the dashboard - the **Deployments** page now shows **qwen3-gpu-pd** with separate prefill and decode component status:
-
-![Deployments page showing qwen3-gpu-pd with disaggregated prefill/decode status](https://placehold.co/600x400)
-
 The disaggregated deployment creates 2 pods (1 prefill + 1 decode) and may take 3-5 minutes. While you wait, run the following command to inspect the different pods created by this deployment:
 
 ```bash
-kubectl get pods -n dynamo-system | grep qwen
+watch kubectl get pods -n dynamo-system
 ```
 
-If you describe each of the pods in the list, you'll see they all share the same model cache volume (dynamo-pvc).
+This deployment can take a bit longer to become ready due to the larger model size and the initial download time. While you wait, let's break down the manifest and understand what each section does, especially the new fields related to disaggregation and model caching.
+
+This model deployment manifest includes several advanced configurations:
+
+- **model.storage.volumes** - This section defines a volume that uses the pre-provisioned Azure Managed Lustre PVC (`dynamo-pvc`) for model caching. By specifying `purpose: modelCache`, you're telling the provider to use this volume for storing downloaded model weights. This allows multiple pods to share the same cache, significantly reducing cold start times when scaling replicas.
+- **serving.mode: disaggregated** - This tells the controller that the prefill and decode components should be deployed separately, allowing for independent scaling and optimized resource allocation.
+- **provider.name: dynamo** - This explicitly selects the Dynamo provider, which supports disaggregated serving and has built-in optimizations for tool call parsing and reasoning with vLLM.
+- **engine.type: vllm** - This selects the vLLM engine, which is optimized for high-performance LLM inference and supports features like KV-cache routing.
+- **engine.contextLength: 131072** - This configures vLLM to use a larger context length, which is beneficial for models that can take advantage of it. The optimal context length depends on the model architecture and your specific workload, so refer to the engine documentation for guidance on tuning this parameter.
+- **engine.args** - This passes arguments to the downstream engine for further customization/optimization. In this case, `dyn-tool-call-parser: "qwen3_coder"` configures vLLM to use a tool call parser so that the model can make use of tools effectively. Different models may have different optimal settings here, and different engines will have different flag names so refer to the documentation for details. With Dynamo, you can pass [tool calling](https://docs.nvidia.com/dynamo/user-guides/tool-calling) and [reasoning](https://docs.nvidia.com/dynamo/user-guides/reasoning) related flags to optimize for specific workloads.
+- **scaling.prefill** and **scaling.decode** - These sections configure the number of replicas and GPU resources for the prefill and decode components independently. In this example, both are set to 1 replica with 1 GPU each, but in a production scenario, you might have more decode workers than prefill since decoding is often the bottleneck.
+
+> [!hint] To keep cost manageable in the lab environment, we're using 1 GPU for prefill and 1 GPU for decode. In production, you might have more decode workers than prefill since decoding is often the bottleneck.
+
+Watch the deployment progress in the dashboard - the **Deployments** page now shows **qwen3-coder-30b** with separate prefill and decode component status:
+
+![Deployments page showing qwen3-coder-30b with disaggregated prefill/decode status](https://placehold.co/600x400)
 
 Once you see the model deployment status is **Running** and the Gateway endpoint is available, test the model via the gateway - you should see similar response times to the previous GPU deployment, but now with the benefits of disaggregation and caching.
 
