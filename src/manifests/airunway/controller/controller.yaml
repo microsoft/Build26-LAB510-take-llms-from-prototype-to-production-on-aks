@@ -1590,9 +1590,13 @@ metadata:
     app.kubernetes.io/managed-by: kustomize
     app.kubernetes.io/name: controller
     control-plane: controller-manager
+    release: prometheus
   name: airunway-controller-manager-metrics-monitor
   namespace: airunway-system
 spec:
+  namespaceSelector:
+    matchNames:
+    - airunway-system
   endpoints:
   - bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
     path: /metrics
