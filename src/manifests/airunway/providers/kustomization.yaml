@@ -2,6 +2,21 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
 - dynamo.yaml
+- dynamo-pvc.yaml
 - kaito.yaml
 - kuberay.yaml
 - llmd.yaml
+images:
+- name: ghcr.io/kaito-project/airunway/dynamo-provider
+  newName: ghcr.io/pauldotyu/airunway/dynamo-provider
+  newTag: dceff79
+- name: ghcr.io/kaito-project/airunway/kaito-provider
+  newName: ghcr.io/pauldotyu/airunway/kaito-provider
+  newTag: dev-1777760109
+- name: ghcr.io/kaito-project/airunway/kuberay-provider
+  newName: ghcr.io/pauldotyu/airunway/kuberay-provider
+  newTag: dev-1777670006
+- name: ghcr.io/kaito-project/airunway/llmd-provider
+  newName: ghcr.io/pauldotyu/airunway/llmd-provider
+  newTag: dceff79
+

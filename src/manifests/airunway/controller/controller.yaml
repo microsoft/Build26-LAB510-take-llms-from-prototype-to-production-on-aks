@@ -1054,11 +1054,18 @@ rules:
   - secrets
   verbs:
   - create
-  - get
   - list
+  - watch
+- apiGroups:
+  - ""
+  resourceNames:
+  - airunway-webhook-server-cert
+  resources:
+  - secrets
+  verbs:
+  - get
   - patch
   - update
-  - watch
 - apiGroups:
   - admissionregistration.k8s.io
   resources:
@@ -1222,12 +1229,8 @@ rules:
   - leases
   verbs:
   - create
-  - delete
   - get
-  - list
-  - patch
   - update
-  - watch
 - apiGroups:
   - gateway.networking.k8s.io
   resources:
@@ -1536,7 +1539,7 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
-        image: ghcr.io/pauldotyu/airunway/controller:dev-1778266859
+        image: ghcr.io/kaito-project/airunway/controller:latest
         livenessProbe:
           httpGet:
             path: /healthz
@@ -1545,9 +1548,6 @@ spec:
           periodSeconds: 20
         name: manager
         ports:
-        - containerPort: 8443
-          name: https
-          protocol: TCP
         - containerPort: 9443
           name: webhook-server
           protocol: TCP
@@ -1582,32 +1582,6 @@ spec:
       volumes:
       - emptyDir: {}
         name: cert-dir
----
-apiVersion: monitoring.coreos.com/v1
-kind: ServiceMonitor
-metadata:
-  labels:
-    app.kubernetes.io/managed-by: kustomize
-    app.kubernetes.io/name: controller
-    control-plane: controller-manager
-    release: prometheus
-  name: airunway-controller-manager-metrics-monitor
-  namespace: airunway-system
-spec:
-  endpoints:
-  - bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
-    path: /metrics
-    port: https
-    scheme: https
-    tlsConfig:
-      insecureSkipVerify: true
-  namespaceSelector:
-    matchNames:
-    - airunway-system
-  selector:
-    matchLabels:
-      app.kubernetes.io/name: airunway
-      control-plane: controller-manager
 ---
 apiVersion: admissionregistration.k8s.io/v1
 kind: MutatingWebhookConfiguration
@@ -1660,16 +1634,3 @@ webhooks:
     resources:
     - modeldeployments
   sideEffects: None
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: airunway-metrics-prometheus
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: airunway-metrics-reader
-subjects:
-- kind: ServiceAccount
-  name: prometheus-kube-prometheus-prometheus
-  namespace: prometheus

@@ -4,19 +4,6 @@ metadata:
   name: dynamo-system
 ---
 apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: dynamo-pvc
-  namespace: dynamo-system
-spec:
-  accessModes:
-    - ReadWriteMany
-  resources:
-    requests:
-      storage: 4Ti
-  storageClassName: azurelustre-static
----
-apiVersion: v1
 kind: ServiceAccount
 metadata:
   labels:
@@ -209,7 +196,7 @@ spec:
         - --health-probe-bind-address=:8081
         command:
         - /provider
-        image: ghcr.io/pauldotyu/airunway/dynamo-provider:dceff79
+        image: ghcr.io/kaito-project/airunway/dynamo-provider:latest
         livenessProbe:
           httpGet:
             path: /healthz
