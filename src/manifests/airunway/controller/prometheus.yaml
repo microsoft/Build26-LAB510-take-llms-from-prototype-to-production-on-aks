@@ -36,3 +36,22 @@ spec:
     matchLabels:
       app.kubernetes.io/name: airunway
       control-plane: controller-manager
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: nvidia-dcgm-exporter
+  namespace: prometheus
+  labels:
+    release: prometheus
+spec:
+  endpoints:
+  - interval: 30s
+    path: /metrics
+    port: gpu-metrics
+  namespaceSelector:
+    matchNames:
+    - gpu-operator
+  selector:
+    matchLabels:
+      app: nvidia-dcgm-exporter
