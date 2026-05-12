@@ -55,7 +55,7 @@ provider "kubectl" {
 variable "location" {
   description = "The Azure region to deploy resources in."
   type        = string
-  default     = "Poland Central"
+  default     = "Brazil South"
 }
 
 variable "github_app_id" {
