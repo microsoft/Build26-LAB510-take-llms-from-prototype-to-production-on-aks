@@ -31,7 +31,7 @@ Before you proceed with the lab environment, ensure you have the following:
 | [Git](https://git-scm.com/)                                          | Clone the AI Runway repository                   |
 | [AI Configurator](https://example.com)                               | Optimizing NVIDIA Dynamo deployments             |
 
-### Self-Provisioning (Outside the Lab)
+### Lab infrastructure setup
 
 You can provision the necessary infrastructure using the Terraform configuration in this repository.
 
