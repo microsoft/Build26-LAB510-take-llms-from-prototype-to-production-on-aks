@@ -75,7 +75,7 @@ Also fix lowercase standard types (e.g., `[!note]` → `[!NOTE]`).
 
 ### Step 4: Handle multi-line admonitions
 
-If an admonition contains **embedded code blocks** (triple backticks inside `>` blockquote lines), convert it to a **collapsible `<details>` section**:
+If an admonition contains **embedded code blocks** (triple backticks inside `>` blockquote lines), convert it to a **collapsible `<details>` section** with **plain-text bold notes** instead of admonition syntax:
 
 **Before:**
 
@@ -97,8 +97,7 @@ If an admonition contains **embedded code blocks** (triple backticks inside `>` 
 <details>
 <summary>Short plain-text description of the collapsed content</summary>
 
-> [!NOTE]
-> Here is some context.
+**Note:** Here is some context.
 
 You could also run this:
 
@@ -113,8 +112,8 @@ Additional explanation here.
 
 Rules for the conversion:
 
-- The `<summary>` tag contains **plain text only** — do NOT put admonitions (`> [!NOTE]`) inside `<summary>`, they will not render
-- Place the admonition **inside the `<details>` body**, right after `</summary>`
+- The `<summary>` tag contains **plain text only** — do NOT put admonitions or Markdown formatting inside `<summary>`
+- Use `**Note:**`, `**Tip:**`, `**Warning:**` etc. as bold plain-text prefixes instead of `> [!NOTE]` syntax inside `<details>` — admonitions do not render inside `<details>` blocks on GitHub
 - Use a short descriptive plain-text label for `<summary>` (e.g., "Inspect provider capabilities", "Deploy via kubectl instead")
 - The `<details>` body contains the rest of the content **without** `>` blockquote prefixes
 - Code blocks inside `<details>` use normal Markdown (no `>` prefix)
@@ -135,6 +134,6 @@ Also verify no inline content patterns remain (tag and text on same line).
 - GitHub admonition types are **case-sensitive** — `[!NOTE]` works, `[!note]` does not render as a styled alert
 - Content **must** start on the line after `[!TYPE]`, not on the same line
 - Admonitions **cannot be nested** inside other elements on GitHub (lists, tables, other blockquotes)
-- Admonitions inside `<summary>` tags **do not render** — use plain text for `<summary>` and place the admonition in the `<details>` body instead
+- Admonitions **do not render inside `<details>` blocks** (including inside `<summary>`) — use bold plain-text prefixes like `**Note:**` instead
 - The legacy `> **Note**` bold syntax is no longer supported by GitHub — always use `> [!NOTE]`
-- Multi-line admonitions with embedded code blocks don't render well on GitHub because the `>` prefix breaks fenced code formatting — use collapsible `<details>` sections instead
+- Multi-line admonitions with embedded code blocks don't render well on GitHub because the `>` prefix breaks fenced code formatting — use collapsible `<details>` sections with bold plain-text notes instead

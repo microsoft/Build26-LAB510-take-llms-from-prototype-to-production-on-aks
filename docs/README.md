@@ -229,8 +229,7 @@ llmd      true    llmd-provider:v0.1.0      1h
 <details>
 <summary>Inspect provider capabilities</summary>
 
-> [!NOTE]
-> To view the full spec of an InferenceProviderConfig, including capabilities and selection rules, run the command below.
+**Note:** To view the full spec of an InferenceProviderConfig, including capabilities and selection rules, run the command below.
 
 ```bash
 kubectl get inferenceproviderconfig kaito -o yaml
@@ -515,8 +514,7 @@ Click **Deploy Model**.
 <details>
 <summary>Deploy via kubectl instead of the dashboard</summary>
 
-> [!NOTE]
-> Notice you selected a provider explicitly in the UI. The dashboard guides you through provider selection, but when deploying via kubectl, you can omit it entirely and let the controller auto-select based on your spec.
+**Note:** Notice you selected a provider explicitly in the UI. The dashboard guides you through provider selection, but when deploying via kubectl, you can omit it entirely and let the controller auto-select based on your spec.
 
 You could have also deployed this model using the following manifest:
 
@@ -849,8 +847,7 @@ kubectl get po -o yaml | yq '.items[].metadata.ownerReferences'
 <details>
 <summary>Waiting for pods to be ready</summary>
 
-> [!TIP]
-> The pods can take up to 7-10 minutes to be ready.
+**Tip:** The pods can take up to 7-10 minutes to be ready.
 
 You can watch the pod rollout with the following command:
 
