@@ -41,10 +41,10 @@ Start by opening a terminal and log in to your Azure account:
 az login
 ```
 
-Then navigate to the Terraform directory and apply the configuration:
+Clone this repo, then navigate to the Terraform directory and apply the configuration:
 
 ```bash
-cd src/infra/terraform
+cd src/infra
 terraform init
 terraform apply
 ```
