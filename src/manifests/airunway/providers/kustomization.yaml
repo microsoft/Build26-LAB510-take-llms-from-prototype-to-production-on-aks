@@ -3,9 +3,13 @@ kind: Kustomization
 resources:
 - dynamo.yaml
 - dynamo-pvc.yaml
+- dynamo-podmonitor.yaml
 - kaito.yaml
+- kaito-podmonitor.yaml
 - kuberay.yaml
+- kuberay-podmonitor.yaml
 - llmd.yaml
+- llmd-podmonitor.yaml
 images:
 - name: ghcr.io/kaito-project/airunway/dynamo-provider
   newName: ghcr.io/pauldotyu/airunway/dynamo-provider
