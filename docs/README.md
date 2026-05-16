@@ -1437,6 +1437,12 @@ kubectl get httproute -A
 
 Refresh the **Deployments** page in the dashboard - it should be empty. This demonstrates how Kubernetes owner references provide automatic, cascading cleanup - you only need to delete the top-level resource.
 
+To delete the entire cluster and all resources provisioned in it, run the following command from the `src/infra` directory:
+
+```bash
+terraform destroy -refresh=false -auto-approve
+```
+
 ### Where to Go from Here
 
 You've covered the core workflow end-to-end. Here are paths to explore next:
