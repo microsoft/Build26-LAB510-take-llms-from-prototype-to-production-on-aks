@@ -9,7 +9,7 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: prometheus-kube-prometheus-prometheus
-  namespace: prometheus
+  namespace: monitoring
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
@@ -41,7 +41,7 @@ apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   name: nvidia-dcgm-exporter
-  namespace: prometheus
+  namespace: monitoring
   labels:
     release: prometheus
 spec:
