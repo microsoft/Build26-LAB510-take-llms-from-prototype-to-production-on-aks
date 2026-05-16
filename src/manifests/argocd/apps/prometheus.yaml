@@ -15,6 +15,11 @@ spec:
     targetRevision: 84.4.0
     helm:
       releaseName: prometheus
+      valuesObject:
+        prometheus:
+          prometheusSpec:
+            podMonitorSelectorNilUsesHelmValues: false
+            serviceMonitorSelectorNilUsesHelmValues: false
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring
