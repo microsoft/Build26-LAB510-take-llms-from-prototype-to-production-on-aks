@@ -7,9 +7,9 @@ roleRef:
   kind: ClusterRole
   name: airunway-metrics-reader
 subjects:
-- kind: ServiceAccount
-  name: prometheus-kube-prometheus-prometheus
-  namespace: monitoring
+  - kind: ServiceAccount
+    name: prometheus-kube-prometheus-prometheus
+    namespace: monitoring
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
@@ -23,15 +23,15 @@ metadata:
   namespace: airunway-system
 spec:
   endpoints:
-  - bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
-    path: /metrics
-    port: https
-    scheme: https
-    tlsConfig:
-      insecureSkipVerify: true
+    - bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
+      path: /metrics
+      port: https
+      scheme: https
+      tlsConfig:
+        insecureSkipVerify: true
   namespaceSelector:
     matchNames:
-    - airunway-system
+      - airunway-system
   selector:
     matchLabels:
       app.kubernetes.io/name: airunway
@@ -46,12 +46,12 @@ metadata:
     release: prometheus
 spec:
   endpoints:
-  - interval: 30s
-    path: /metrics
-    port: gpu-metrics
+    - interval: 30s
+      path: /metrics
+      port: gpu-metrics
   namespaceSelector:
     matchNames:
-    - gpu-operator
+      - gpu-operator
   selector:
     matchLabels:
       app: nvidia-dcgm-exporter
