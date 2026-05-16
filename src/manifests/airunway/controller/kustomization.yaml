@@ -6,6 +6,6 @@ resources:
 images:
 - name: ghcr.io/kaito-project/airunway/controller
   newName: ghcr.io/pauldotyu/airunway/controller
-  newTag: dev-1778266859
+  newTag: dev-1778952091
 patches:
   - path: controller-patch.yaml
