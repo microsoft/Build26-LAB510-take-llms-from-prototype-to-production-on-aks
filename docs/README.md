@@ -1335,7 +1335,7 @@ Open a **new terminal tab** for the remaining commands. In a new browser tab nav
 Get Grafana admin password:
 
 ```bash
-kubectl get secret --namespace prometheus -l app.kubernetes.io/component=admin-secret -o jsonpath="{.items[0].data.admin-password}" | base64 --decode ; echo
+kubectl get secret --n monitoring -l app.kubernetes.io/component=admin-secret -o jsonpath="{.items[0].data.admin-password}" | base64 --decode ; echo
 ```
 
 Log in using admin as the username and copy/paste the password that was printed in the terminal.
