@@ -1327,7 +1327,7 @@ The airunway controller provides the following metrics:
 Port-forward Grafana (this will occupy the terminal):
 
 ```bash
-kubectl port-forward svc/prometheus-grafana -n prometheus 3000:80
+kubectl port-forward svc/prometheus-grafana -n monitoring 3000:80
 ```
 
 Open a **new terminal tab** for the remaining commands. In a new browser tab navigate to http://localhost:3000.
