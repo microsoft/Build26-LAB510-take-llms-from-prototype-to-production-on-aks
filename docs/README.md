@@ -5,9 +5,47 @@ description: Moving an AI model from experiment to production is hard. Learn abo
 
 ## Overview
 
-AI Runway is an open-source accelerator that simplifies deploying LLMs on Kubernetes. By treating models as native Kubernetes resources, AI Runway offers a single interface that adapts to multiple inference backends.
+AI Runway is an open-source accelerator that simplifies deploying LLMs on Kubernetes by treating model deployments as native Kubernetes resources, offering a single interface that adapts to multiple inference backends.
 
 In this workshop, you will deploy LLMs on Azure Kubernetes Service (AKS) CPU nodes and GPU nodes, implement custom resources for scaling and networking, configure GPU and latency monitoring, and explore how GitOps patterns with Argo CD can bring this to production.
+
+## Why AI Runway?
+
+Deploying large language models (LLMs) in production presents unique challenges. AI Runway solves these by:
+
+- **Provider Agnostic Interface**: Describe *what* you want to deploy (model, engine, resources) and AI Runway handles *how* automatically, eliminating the need to learn each inference provider's specifics.
+
+- **Reduced Operational Complexity**: Abstracts the complexity of multiple inference backends, letting ML teams focus on models rather than infrastructure specifics.
+
+- **Auto-Selection & Optimization**: Intelligently selects the best inference provider and engine based on requirements, ensuring optimal performance without manual intervention.
+
+- **Production-Ready Patterns**: Built-in support for GitOps workflows, monitoring, and scalable deployment patterns essential for production environments.
+
+This approach eliminates typical friction points in LLM deployment while maintaining flexibility and performance.
+
+## Comparison with Alternatives
+
+Understanding how AI Runway differs from other approaches:
+
+### Traditional Direct Kubernetes Deployments
+
+- Require deep knowledge of each inference backend's specific patterns
+- Manual configuration for each provider increases complexity
+- Separate management and monitoring for each provider
+
+### Other MLOps Platforms  
+
+- Often vendor-locked or overly complex for LLM needs
+- Limited ability to work with multiple inference engines
+- May not integrate well with existing GitOps workflows
+
+### AI Runway Advantages
+
+- Unified interface works with multiple providers
+- Smart selection of optimal provider/engine
+- GitOps native design
+- Production-ready patterns
+- Developer-friendly approach
 
 ## Prerequisites
 
