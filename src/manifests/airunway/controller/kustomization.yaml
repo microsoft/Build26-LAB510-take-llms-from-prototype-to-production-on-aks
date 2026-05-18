@@ -6,4 +6,4 @@ resources:
 images:
 - name: ghcr.io/kaito-project/airunway/controller
   newName: ghcr.io/pauldotyu/airunway/controller
-  newTag: dev-1779055565
+  newTag: dev-1779118586
