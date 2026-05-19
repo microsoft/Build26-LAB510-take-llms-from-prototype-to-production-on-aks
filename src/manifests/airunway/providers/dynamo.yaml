@@ -21,120 +21,120 @@ metadata:
   name: airunway-hf-secret
   namespace: dynamo-system
 rules:
-  - apiGroups:
-      - ""
-    resourceNames:
-      - hf-token-secret
-    resources:
-      - secrets
-    verbs:
-      - delete
+- apiGroups:
+  - ""
+  resourceNames:
+  - hf-token-secret
+  resources:
+  - secrets
+  verbs:
+  - delete
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: airunway-dynamo-provider-role
 rules:
-  - apiGroups:
-      - airunway.ai
-    resources:
-      - modeldeployments
-    verbs:
-      - get
-      - list
-      - watch
-      - patch
-      - update
-  - apiGroups:
-      - airunway.ai
-    resources:
-      - modeldeployments/status
-    verbs:
-      - get
-      - patch
-      - update
-  - apiGroups:
-      - airunway.ai
-    resources:
-      - modeldeployments/finalizers
-    verbs:
-      - update
-  - apiGroups:
-      - airunway.ai
-    resources:
-      - inferenceproviderconfigs
-    verbs:
-      - get
-      - list
-      - watch
-      - create
-      - patch
-      - update
-  - apiGroups:
-      - airunway.ai
-    resources:
-      - inferenceproviderconfigs/status
-    verbs:
-      - get
-      - patch
-      - update
-  - apiGroups:
-      - nvidia.com
-    resources:
-      - dynamographdeployments
-    verbs:
-      - get
-      - list
-      - watch
-      - create
-      - update
-      - patch
-      - delete
-  - apiGroups:
-      - nvidia.com
-    resources:
-      - dynamographdeployments/status
-    verbs:
-      - get
-  - apiGroups:
-      - ""
-    resources:
-      - persistentvolumeclaims
-    verbs:
-      - get
-      - list
-      - watch
-      - create
-      - delete
-  - apiGroups:
-      - batch
-    resources:
-      - jobs
-    verbs:
-      - get
-      - list
-      - watch
-      - create
-      - delete
-  - apiGroups:
-      - ""
-    resources:
-      - events
-    verbs:
-      - create
-      - patch
-  - apiGroups:
-      - coordination.k8s.io
-    resources:
-      - leases
-    verbs:
-      - get
-      - list
-      - watch
-      - create
-      - update
-      - patch
-      - delete
+- apiGroups:
+  - airunway.ai
+  resources:
+  - modeldeployments
+  verbs:
+  - get
+  - list
+  - watch
+  - patch
+  - update
+- apiGroups:
+  - airunway.ai
+  resources:
+  - modeldeployments/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - airunway.ai
+  resources:
+  - modeldeployments/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - airunway.ai
+  resources:
+  - inferenceproviderconfigs
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - patch
+  - update
+- apiGroups:
+  - airunway.ai
+  resources:
+  - inferenceproviderconfigs/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - nvidia.com
+  resources:
+  - dynamographdeployments
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+- apiGroups:
+  - nvidia.com
+  resources:
+  - dynamographdeployments/status
+  verbs:
+  - get
+- apiGroups:
+  - ""
+  resources:
+  - persistentvolumeclaims
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - delete
+- apiGroups:
+  - batch
+  resources:
+  - jobs
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - delete
+- apiGroups:
+  - ""
+  resources:
+  - events
+  verbs:
+  - create
+  - patch
+- apiGroups:
+  - coordination.k8s.io
+  resources:
+  - leases
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
@@ -148,9 +148,9 @@ roleRef:
   kind: Role
   name: airunway-hf-secret
 subjects:
-  - kind: ServiceAccount
-    name: airunway
-    namespace: airunway-system
+- kind: ServiceAccount
+  name: airunway
+  namespace: airunway-system
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -161,9 +161,9 @@ roleRef:
   kind: ClusterRole
   name: airunway-dynamo-provider-role
 subjects:
-  - kind: ServiceAccount
-    name: airunway-dynamo-provider
-    namespace: airunway-system
+- kind: ServiceAccount
+  name: airunway-dynamo-provider
+  namespace: airunway-system
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -191,44 +191,44 @@ spec:
         control-plane: dynamo-provider
     spec:
       containers:
-        - args:
-            - --leader-elect
-            - --health-probe-bind-address=:8081
-          command:
-            - /provider
-          image: ghcr.io/kaito-project/airunway/dynamo-provider:latest
-          livenessProbe:
-            httpGet:
-              path: /healthz
-              port: 8081
-            initialDelaySeconds: 15
-            periodSeconds: 20
-          name: manager
-          ports:
-            - containerPort: 8443
-              name: metrics
-              protocol: TCP
-            - containerPort: 8081
-              name: health
-              protocol: TCP
-          readinessProbe:
-            httpGet:
-              path: /readyz
-              port: 8081
-            initialDelaySeconds: 5
-            periodSeconds: 10
-          resources:
-            limits:
-              memory: 256Mi
-            requests:
-              cpu: 100m
-              memory: 128Mi
-          securityContext:
-            allowPrivilegeEscalation: false
-            capabilities:
-              drop:
-                - ALL
-            readOnlyRootFilesystem: true
+      - args:
+        - --leader-elect
+        - --health-probe-bind-address=:8081
+        command:
+        - /provider
+        image: ghcr.io/kaito-project/airunway/dynamo-provider:latest
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8081
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        name: manager
+        ports:
+        - containerPort: 8443
+          name: metrics
+          protocol: TCP
+        - containerPort: 8081
+          name: health
+          protocol: TCP
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: 8081
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        resources:
+          limits:
+            memory: 256Mi
+          requests:
+            cpu: 100m
+            memory: 128Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
       securityContext:
         runAsNonRoot: true
         seccompProfile:
