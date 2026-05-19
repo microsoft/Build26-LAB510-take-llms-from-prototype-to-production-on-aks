@@ -413,7 +413,7 @@ bun install && bun run dev
 > [!WARNING]
 > The `bun run dev` command occupies this terminal. In VS Code, open a **new terminal tab** (click the **+** button in the terminal panel) for all remaining CLI commands in this workshop.
 
-This launches both the frontend and backend. The backend API runs on port 3001 and the frontend UI runs on port 5173. Open +++http://localhost:5173+++ in your browser.
+This launches both the frontend and backend. The backend API runs on port 3001 and the frontend UI runs on port 5173. Open `http://localhost:5173` in your browser.
 
 > [!WARNING]
 > Keep this tab open throughout the workshop.
@@ -501,7 +501,7 @@ If you already have a Hugging Face account, you can connect it now. In the **Set
 
 **Next up:** You'll deploy a GPU model with a minimal manifest and let AI Runway auto-select the provider and engine.
 
-===
+---
 
 ## Module 3: GPU Auto-Selection & Validation
 
@@ -755,7 +755,7 @@ The Kubernetes **owner references** you saw earlier automatically cleaned up the
 
 **Next up:** You'll configure production serving with disaggregated scaling and shared model caching.
 
-===
+---
 
 ## Module 4: Production Serving Pattern
 
@@ -930,7 +930,7 @@ The disaggregated deployment is reachable through the same gateway as every othe
 
 **Next up:** You'll use the gateway endpoint the way an application team would, plugging it into developer tools as an OpenAI-compatible service.
 
-===
+---
 
 ## Module 5: Platform Consumer Path
 
@@ -1107,7 +1107,7 @@ This tests whether the model can synthesize information across multiple files (t
 > [!NOTE]
 > **Checkpoint:** You've addressed two of three production concerns: reliable serving at scale and easy consumption. If time allows, continue with the optional operations module to complete the set with operational confidence.
 
-===
+---
 
 ## Module 6: Optional - Operate the Platform
 
@@ -1199,15 +1199,15 @@ Now start a port-forward to Grafana. This will occupy the terminal:
 kubectl port-forward svc/prometheus-grafana -n monitoring 3000:80
 ```
 
-In a new browser tab navigate to +++http://localhost:3000+++.
+In a new browser tab navigate to `http://localhost:3000`.
 
-Log in using +++admin+++ as the username and paste the password that was printed in the previous terminal.
+Log in using `admin` as the username and paste the password that was printed in the previous terminal.
 
-Navigate to the **Dashboard import page** at +++http://localhost:3000/dashboard/import+++.
+Navigate to the **Dashboard import page** at `http://localhost:3000/dashboard/import`.
 
 Use the dashboard JSON file included in the repo: **demos/observability/sample-dashboard.json**.
 
-Click in the **Upload dashboard JSON file** area then type +++\\\wsl.localhost\Ubuntu\home\labuser\airunway\demos\observability+++ in the Windows Explorer address bar then press **enter**. You should see the +++sample-dashboard.json+++ file. Click on the file, then click the **Open** button.
+Click in the **Upload dashboard JSON file** area then type `\\\wsl.localhost\Ubuntu\home\labuser\airunway\demos\observability` in the Windows Explorer address bar then press **enter**. You should see the `sample-dashboard.json` file. Click on the file, then click the **Open** button.
 
 !IMAGE[c94yu7sx.png](instructions342912/c94yu7sx.png)
 
@@ -1231,7 +1231,7 @@ The dashboard is organized into five rows:
 >
 > The NVIDIA GPU Operator (which was installed as part of the cluster bootstrap) includes the **DCGM Exporter**, a component that exposes GPU metrics like utilization, memory usage, and temperature. Since we already configured Prometheus to scrape metrics from all namespaces, those GPU metrics are already being collected. All you need is a dashboard to visualize them.
 >
-> Import the [NVIDIA DCGM Exporter Dashboard](https://grafana.com/grafana/dashboards/12219-nvidia-dcgm-exporter-dashboard/): in Grafana, go to **Dashboards → New → Import**, enter dashboard ID +++12219+++, click **Load**, select the **Prometheus** data source, and click **Import**.
+> Import the [NVIDIA DCGM Exporter Dashboard](https://grafana.com/grafana/dashboards/12219-nvidia-dcgm-exporter-dashboard/): in Grafana, go to **Dashboards → New → Import**, enter dashboard ID `12219`, click **Load**, select the **Prometheus** data source, and click **Import**.
 >
 > ![Grafana dashboard showing GPU utilization metrics](instructions342912/dpyal48g.png)
 
@@ -1241,7 +1241,7 @@ The dashboard is organized into five rows:
 - Prometheus and Grafana show whether model rollouts are healthy, slow, or failing
 - DORA-style indicators bring the same delivery metrics used for application platforms to AI operations
 
-===
+---
 
 ## Summary
 
@@ -1282,7 +1282,7 @@ The appendixes that follow cover the full provider capability matrix, troublesho
 > [!WARNING]
 > When you're finished, click the **End** button in the upper right to delete all resources. The temporary Azure subscription, cluster, and virtual machine are automatically cleaned up. If you don't end the lab manually, it will be deleted when time elapses.
 
-===
+---
 
 ## Appendix A: Provider Capability Matrix & Selection Rules
 
@@ -1313,7 +1313,7 @@ When you omit **spec.provider.name**, the controller evaluates these rules in or
 
 The selection reason is always recorded in **status.provider.selectedReason** for observability.
 
-===
+---
 
 ## Appendix B: Reproduce This Lab in Your Own Environment
 
@@ -1407,7 +1407,7 @@ Use these files as a starting point, not a production baseline. Before deploying
 4. **Commit your first ModelDeployment to Git.** Let Argo CD reconcile it. Watch `status.conditions` progress through ProviderSelected, EngineSelected, ResourceCreated, Ready, and GatewayReady.
 5. **Validate the endpoint.** Confirm the gateway IP is reachable and send an OpenAI-compatible `/v1/chat/completions` request before handing the platform to application teams.
 
-===
+---
 
 ## Appendix C: Troubleshooting Tips
 
