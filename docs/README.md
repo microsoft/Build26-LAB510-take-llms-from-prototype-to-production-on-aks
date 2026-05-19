@@ -650,14 +650,17 @@ graph TD
 
 AI Runway creates all of these gateway resources automatically for each ModelDeployment with gateway enabled. You don't need to set up the routing yourself.
 
-> [+hint] How AI Runway handles gateway resources across providers
->
-> The InferencePool and EPP creation depends on the provider:
->
-> - **Providers with native gateway support** (like Dynamo): The provider controller creates a specialized InferencePool and EPP with advanced routing capabilities (like KV-cache affinity). The AI Runway core controller detects this through the provider's `InferenceProviderConfig` gateway capabilities and skips creating its own, avoiding duplication.
-> - **Providers without native gateway support** (like KAITO): The AI Runway core controller creates a generic InferencePool and deploys the upstream EPP.
->
-> Either way, the result is the same for consumers: one endpoint, one API format, body-based routing to the right model.
+<details>
+<summary>How AI Runway handles gateway resources across providers</summary>
+
+The InferencePool and EPP creation depends on the provider:
+
+- **Providers with native gateway support** (like Dynamo): The provider controller creates a specialized InferencePool and EPP with advanced routing capabilities (like KV-cache affinity). The AI Runway core controller detects this through the provider's `InferenceProviderConfig` gateway capabilities and skips creating its own, avoiding duplication.
+- **Providers without native gateway support** (like KAITO): The AI Runway core controller creates a generic InferencePool and deploys the upstream EPP.
+
+Either way, the result is the same for consumers: one endpoint, one API format, body-based routing to the right model.
+
+</details>
 
 ### Wait for the Deployment
 
@@ -845,16 +848,19 @@ spec:
 EOF
 ```
 
-> [+hint] Using a Hugging Face token for authenticated downloads
->
-> If you connected Hugging Face through the dashboard in Module 2, a Kubernetes secret named **hf-token-secret** was automatically created in all provider namespaces. To use it, add the `secrets` field to your ModelDeployment spec:
->
-> ```yaml
-> secrets:
->   huggingFaceToken: hf-token-secret
-> ```
->
-> The lab path uses a public model that doesn't require authentication, so this is optional.
+<details>
+<summary>Using a Hugging Face token for authenticated downloads</summary>
+
+If you connected Hugging Face through the dashboard in Module 2, a Kubernetes secret named **hf-token-secret** was automatically created in all provider namespaces. To use it, add the `secrets` field to your ModelDeployment spec:
+
+```yaml
+secrets:
+  huggingFaceToken: hf-token-secret
+```
+
+The lab path uses a public model that doesn't require authentication, so this is optional.
+
+</details>
 
 The disaggregated deployment creates two pods (one prefill + one decode) and may take 5-7 minutes. Start watching the pods while we walk through some of the key fields in the manifest:
 
@@ -961,108 +967,114 @@ Since AI Runway exposes **OpenAI-compatible endpoints**, any tool that speaks th
 > [!WARNING]
 > **Choose ONE of the two options below.** Both achieve the same result. Pick whichever workflow you prefer.
 
-> [+] **Option A: GitHub Copilot CLI**
->
-> In the terminal, make sure you are in the root of the AI Runway repository. If not, run:
->
-> ```bash
-> cd ~/airunway
-> ```
->
-> GitHub Copilot CLI supports custom model providers through environment variables. Set these to point Copilot at your AKS-hosted model:
->
-> Get the inference gateway IP address:
->
-> ```bash
-> GATEWAY_IP=$(kubectl get gateway -n istio-system inference-gateway -o jsonpath='{.status.addresses[0].value}')
-> ```
->
-> Environment variables for custom model provider configuration:
->
-> ```bash
-> export COPILOT_PROVIDER_BASE_URL=http://$GATEWAY_IP/v1
-> export COPILOT_PROVIDER_TYPE=openai
-> export COPILOT_MODEL=Qwen/Qwen3-Coder-30B-A3B-Instruct
-> export COPILOT_PROVIDER_MAX_PROMPT_TOKENS=128000
-> export COPILOT_PROVIDER_MAX_OUTPUT_TOKENS=16000
-> ```
->
-> With these set, Copilot routes all completions through your self-hosted model instead of the public API. Inference stays private and within your network.
->
-> > [!TIP]
-> > You can run `copilot help providers` to see a full list of available options.
->
-> Then use Copilot with your local model:
->
-> ```bash
-> copilot
-> ```
->
-> When GitHub Copilot CLI loads, grant it permissions to access files in the current folder (**~/airunway**).
->
-> You should see that the Copilot CLI has loaded agent instructions from the AI Runway repo and has a few skills available.
->
-> Enter the following prompt: `Tell me everything I need to know about AI Runway`
->
-> ![Copilot CLI connected to local Qwen/Qwen3-Coder-30B-A3B-Instruct model](instructions342912/m04cj0et.png)
+<details>
+<summary>Option A: GitHub Copilot CLI</summary>
 
-> [+] **Option B: VS Code**
->
-> VS Code supports [custom language model configurations](https://code.visualstudio.com/docs/copilot/customization/language-models) that let Copilot use your self-hosted models.
->
-> Run the following command in your WSL terminal to get the gateway IP:
->
-> ```bash
-> GATEWAY_IP=$(kubectl get gateway -n istio-system inference-gateway -o jsonpath='{.status.addresses[0].value}')
-> echo "Gateway IP: $GATEWAY_IP"
-> ```
->
-> Then write the VS Code language model configuration file with your gateway IP filled in:
->
-> ```bash
-> cat > "/mnt/c/Users/LabUser/AppData/Roaming/Code - Insiders/User/chatLanguageModels.json" <<EOF
-> [
->   {
->     "name": "OpenAI Compatible",
->     "vendor": "customoai",
->     "models": [
->       {
->         "id": "Qwen/Qwen3-Coder-30B-A3B-Instruct",
->         "name": "Qwen/Qwen3-Coder-30B-A3B-Instruct",
->         "url": "http://$GATEWAY_IP/v1",
->         "toolCalling": true,
->         "vision": true,
->         "maxInputTokens": 128000,
->         "maxOutputTokens": 16000
->       }
->     ]
->   }
-> ]
-> EOF
-> ```
->
-> > [!TIP]
-> > The path above points to the VS Code settings folder on the Windows filesystem, accessed from WSL via `/mnt/c/`. If you're running VS Code natively on Linux or macOS, the path would be different (for example, `~/.config/Code/User/` on Linux).
->
-> This tells VS Code where to find your self-hosted model so Copilot can use it instead of the default cloud-hosted models. No manual editing needed.
->
-> In VS Code, click the Copilot icon in the editor to toggle open the Copilot pane. Click on **Auto** to open the model selector.
->
-> ![VS Code editor showing Copilot pane with custom model selected](instructions342912/sl1rnawg.png)
->
-> Click on the model selector and select **Other Models** to expand the options.
->
-> ![VS Code showing custom model in the model selector dropdown](instructions342912/xv7bo5ip.png)
->
-> You should see your custom model (**Qwen/Qwen3-Coder-30B-A3B-Instruct**) listed under the **OpenAI Compatible** provider. Click it.
->
-> ![VS Code showing OpenAI Compatible models](instructions342912/fta32rld.png)
->
-> Now Copilot in VS Code routes all completions through your self-hosted model running in AKS.
->
-> Enter the following prompt: `Tell me everything I need to know about AI Runway`
->
-> ![Chat prompt](instructions342912/eomh6cal.png)
+In the terminal, make sure you are in the root of the AI Runway repository. If not, run:
+
+```bash
+cd ~/airunway
+```
+
+GitHub Copilot CLI supports custom model providers through environment variables. Set these to point Copilot at your AKS-hosted model:
+
+Get the inference gateway IP address:
+
+```bash
+GATEWAY_IP=$(kubectl get gateway -n istio-system inference-gateway -o jsonpath='{.status.addresses[0].value}')
+```
+
+Environment variables for custom model provider configuration:
+
+```bash
+export COPILOT_PROVIDER_BASE_URL=http://$GATEWAY_IP/v1
+export COPILOT_PROVIDER_TYPE=openai
+export COPILOT_MODEL=Qwen/Qwen3-Coder-30B-A3B-Instruct
+export COPILOT_PROVIDER_MAX_PROMPT_TOKENS=128000
+export COPILOT_PROVIDER_MAX_OUTPUT_TOKENS=16000
+```
+
+With these set, Copilot routes all completions through your self-hosted model instead of the public API. Inference stays private and within your network.
+
+> [!TIP]
+> You can run `copilot help providers` to see a full list of available options.
+
+Then use Copilot with your local model:
+
+```bash
+copilot
+```
+
+When GitHub Copilot CLI loads, grant it permissions to access files in the current folder (**~/airunway**).
+
+You should see that the Copilot CLI has loaded agent instructions from the AI Runway repo and has a few skills available.
+
+Enter the following prompt: `Tell me everything I need to know about AI Runway`
+
+![Copilot CLI connected to local Qwen/Qwen3-Coder-30B-A3B-Instruct model](instructions342912/m04cj0et.png)
+
+</details>
+
+<details>
+<summary>Option B: VS Code</summary>
+
+VS Code supports [custom language model configurations](https://code.visualstudio.com/docs/copilot/customization/language-models) that let Copilot use your self-hosted models.
+
+Run the following command in your WSL terminal to get the gateway IP:
+
+```bash
+GATEWAY_IP=$(kubectl get gateway -n istio-system inference-gateway -o jsonpath='{.status.addresses[0].value}')
+echo "Gateway IP: $GATEWAY_IP"
+```
+
+Then write the VS Code language model configuration file with your gateway IP filled in:
+
+```bash
+cat > "/mnt/c/Users/LabUser/AppData/Roaming/Code - Insiders/User/chatLanguageModels.json" <<EOF
+[
+  {
+    "name": "OpenAI Compatible",
+    "vendor": "customoai",
+    "models": [
+      {
+        "id": "Qwen/Qwen3-Coder-30B-A3B-Instruct",
+        "name": "Qwen/Qwen3-Coder-30B-A3B-Instruct",
+        "url": "http://$GATEWAY_IP/v1",
+        "toolCalling": true,
+        "vision": true,
+        "maxInputTokens": 128000,
+        "maxOutputTokens": 16000
+      }
+    ]
+  }
+]
+EOF
+```
+
+> [!TIP]
+> The path above points to the VS Code settings folder on the Windows filesystem, accessed from WSL via `/mnt/c/`. If you're running VS Code natively on Linux or macOS, the path would be different (for example, `~/.config/Code/User/` on Linux).
+
+This tells VS Code where to find your self-hosted model so Copilot can use it instead of the default cloud-hosted models. No manual editing needed.
+
+In VS Code, click the Copilot icon in the editor to toggle open the Copilot pane. Click on **Auto** to open the model selector.
+
+![VS Code editor showing Copilot pane with custom model selected](instructions342912/sl1rnawg.png)
+
+Click on the model selector and select **Other Models** to expand the options.
+
+![VS Code showing custom model in the model selector dropdown](instructions342912/xv7bo5ip.png)
+
+You should see your custom model (**Qwen/Qwen3-Coder-30B-A3B-Instruct**) listed under the **OpenAI Compatible** provider. Click it.
+
+![VS Code showing OpenAI Compatible models](instructions342912/fta32rld.png)
+
+Now Copilot in VS Code routes all completions through your self-hosted model running in AKS.
+
+Enter the following prompt: `Tell me everything I need to know about AI Runway`
+
+![Chat prompt](instructions342912/eomh6cal.png)
+
+</details>
 
 > [!TIP]
 > The first response from a self-hosted model may take longer than you're used to from cloud APIs. This is normal. The model is running on your cluster's GPUs, and the first request warms up the inference pipeline.
@@ -1227,13 +1239,16 @@ The dashboard is organized into five rows:
 > [!NOTE]
 > The DORA row ties platform engineering to AI inference operations. **Deployment Frequency** shows how actively teams ship models. **Lead Time** measures the gap from `kubectl apply` to serving traffic; the provision duration chart below isolates whether delays come from queue time or GPU scheduling. **Change Failure Rate** highlights spec validation gaps or provider issues. **Currently Failed Deployments** is a quick health check. These are the same signals SRE teams track for microservices, applied to your inference platform.
 
-> [+hint] Optional: Import the NVIDIA DCGM GPU dashboard
->
-> The NVIDIA GPU Operator (which was installed as part of the cluster bootstrap) includes the **DCGM Exporter**, a component that exposes GPU metrics like utilization, memory usage, and temperature. Since we already configured Prometheus to scrape metrics from all namespaces, those GPU metrics are already being collected. All you need is a dashboard to visualize them.
->
-> Import the [NVIDIA DCGM Exporter Dashboard](https://grafana.com/grafana/dashboards/12219-nvidia-dcgm-exporter-dashboard/): in Grafana, go to **Dashboards → New → Import**, enter dashboard ID `12219`, click **Load**, select the **Prometheus** data source, and click **Import**.
->
-> ![Grafana dashboard showing GPU utilization metrics](instructions342912/dpyal48g.png)
+<details>
+<summary>Optional: Import the NVIDIA DCGM GPU dashboard</summary>
+
+The NVIDIA GPU Operator (which was installed as part of the cluster bootstrap) includes the **DCGM Exporter**, a component that exposes GPU metrics like utilization, memory usage, and temperature. Since we already configured Prometheus to scrape metrics from all namespaces, those GPU metrics are already being collected. All you need is a dashboard to visualize them.
+
+Import the [NVIDIA DCGM Exporter Dashboard](https://grafana.com/grafana/dashboards/12219-nvidia-dcgm-exporter-dashboard/): in Grafana, go to **Dashboards → New → Import**, enter dashboard ID `12219`, click **Load**, select the **Prometheus** data source, and click **Import**.
+
+![Grafana dashboard showing GPU utilization metrics](instructions342912/dpyal48g.png)
+
+</details>
 
 **What you learned in this module:**
 
