@@ -91,7 +91,7 @@ az aks get-credentials \
 > [!NOTE]
 > The Terraform configuration requires an Azure subscription with GPU quota (Standard_NC48ads_A100_v4). Request quota increases in advance — GPU quota approvals can take time.
 
-**Verify the connection** - confirm you can reach the cluster:
+Verify the connection:
 
 ```bash
 kubectl cluster-info
@@ -214,10 +214,10 @@ The model deployment you just applied requested a Gemma2 2B parameter model with
 
 A **provider** in AI Runway is an inference backend that actually runs your model. Each provider is a separate project with its own strengths:
 
-- **KAITO** (CNCF Sandbox): Optimized for quick CPU-based inference using llama.cpp, and also supports GPU workloads with vLLM
-- **Dynamo** (NVIDIA): Built for GPU inference with vLLM, SGLang, and TensorRT-LLM. Supports disaggregated prefill/decode for production scaling
-- **KubeRay**: Runs models on Ray clusters with vLLM
-- **llm-d**: Lightweight GPU serving with vLLM
+- **KAITO** (CNCF Sandbox): Automates LLM inference, fine-tuning, and RAG deployment in Kubernetes with GPU auto-provisioning, optimized engine configs, and support for any vLLM-compatible HuggingFace model
+- **Dynamo** (NVIDIA): Open-source distributed inference framework that boosts throughput up to 30x via disaggregated serving, smart KV cache routing, and dynamic GPU scheduling across vLLM, SGLang, and TensorRT-LLM
+- **KubeRay**: Open-source Kubernetes operator that manages Ray clusters (RayCluster, RayJob, RayService) for scalable AI workloads including LLM serving, batch inference, and distributed training
+- **llm-d** (CNCF Sandbox): Kubernetes-native distributed inference stack with LLM-aware routing, KV cache management, disaggregated serving, and multi-hardware support (NVIDIA, AMD, TPU, Intel HPU) across vLLM and SGLang
 
 You don't have to learn each provider's configuration format. The controller picks the right provider based on what you ask for.
 
@@ -350,7 +350,7 @@ curl -s http://localhost:8080/v1/chat/completions \
 You should see a JSON response with the model's reply. This confirms the model is running and serving an OpenAI-compatible API.
 
 > [!NOTE]
-> Later, you'll see how the Gateway API Inference Extension routes traffic to multiple models through a single shared endpoint. The API shape stays the same regardless of how many models you add.
+> Later, you'll see how the Gateway API Inference Extension routes traffic to multiple models through a single shared endpoint.
 
 When you're done, press **Ctrl+C** in the port-forward terminal to stop it. You can close the extra terminal tab.
 
@@ -401,6 +401,9 @@ Open the repository in VS Code by clicking **File --> Open Folder...**, type `/h
 
 ![Open AI Runway repo in VS Code](instructions342912/m1fyrb56.png)
 
+> [!NOTE]
+> When VS Code opens the folder, all previous terminal sessions will be gone. You will need to open a new terminal to continue.
+
 Install project dependencies and start the dashboard
 
 ```bash
@@ -410,47 +413,45 @@ bun install && bun run dev
 > [!WARNING]
 > The `bun run dev` command occupies this terminal. In VS Code, open a **new terminal tab** (click the **+** button in the terminal panel) for all remaining CLI commands in this workshop.
 
-This launches both the frontend and backend. The backend API runs on port 3001 and the frontend UI runs on port 5173. Open `http://localhost:5173` in your browser.
+This launches both the frontend and backend. The backend API runs on port 3001 and the frontend UI runs on port 5173. Open +++http://localhost:5173+++ in your browser.
 
 > [!WARNING]
 > Keep this tab open throughout the workshop.
 
 ### See Your Deployment in the Dashboard
 
-Open the **Deployments** page in the left sidebar. You should see **gemma2-2b-cpu** from Module 1 listed with its phase and readiness status.
+Open the **Deployments** page in the left sidebar. You should see **gemma2-2b-cpu** from Module 1 listed with its phase and readiness status. Each row shows the deployment name, phase (Pending, Deploying, Running, Failed), provider, engine, replica counts, and age.
 
 ![Deployments page showing gemma-cpu progressing through phases](instructions342912/pxad4emk.png)
 
 Click **gemma2-2b-cpu** to open the deployment details. You'll see the runtime (KAITO), engine (LLAMACPP), model name, gateway endpoint, an example curl command, metrics, and logs. This is the same information you queried with `kubectl get modeldeployment -o yaml`, presented visually.
 
-Now click through **Settings > General** and confirm it shows **Connected** and **4 of 4** runtimes installed. This tells you all four inference providers (KAITO, Dynamo, KubeRay, llm-d) are registered and healthy.
+### Explore the Settings Page
+
+Click **Settings** in the left sidebar. The Settings page has three tabs that give you a full picture of your cluster's readiness.
+
+**General** shows cluster connectivity and a runtime summary. Confirm it shows **Connected** to your AKS cluster with **4 of 4** runtimes installed.
+
+**Runtimes** gives a full view of each provider's installation status, capabilities (engines, serving modes, hardware support), and version. It also shows prerequisite checks (GPU Operator, Gateway API CRDs) and cluster autoscaling status. This is the single place to confirm your cluster's inference stack is complete. If a provider shows as not installed, the auto-selection algorithm will skip it when matching deployments.
+
+**Integrations** shows the status of external services like GPU Operator health, Gateway API CRDs, and Hugging Face OAuth. If you already have a Hugging Face account, click **Connect Hugging Face** and follow the OAuth flow. Once connected, you'll see your Hugging Face username and a **Connected** badge.
 
 ![Settings page showing runtimes and integrations status](instructions342912/warfybl6.png)
 
-<details>
-<summary>Dashboard page reference</summary>
+![Hugging Face connection in the Integrations tab showing connected status](instructions342912/z8f1jasa.png)
 
-The dashboard has three main pages you can explore at any time:
+> [!TIP]
+> Skip the Hugging Face connection if you do not already have an account. The rest of the workshop uses public models and does not require Hugging Face authentication.
 
-**Models**: A catalog of models organized by engine compatibility. Each card shows the model name, parameter count, required GPU memory, and supported inference engines (vLLM, SGLang, TensorRT-LLM, llama.cpp). The **Deploy →** button on each card opens a guided deployment flow where you pick a runtime, engine, and resource allocation. In this workshop, we use kubectl manifests instead so you can see auto-selection at work.
+### Browse the Model Catalog
+
+Click **Models** in the left sidebar. This page is a catalog of models organized by engine compatibility. Each card shows the model name, parameter count, required GPU memory, and supported inference engines (vLLM, SGLang, TensorRT-LLM, llama.cpp). The **Deploy →** button on each card opens a guided deployment flow where you pick a runtime, engine, and resource allocation. In this workshop, we use kubectl manifests instead so you can see auto-selection at work.
 
 ![Model catalog page showing curated models with engine tags and Deploy buttons](instructions342912/7gkuzguq.png)
 
-**Deployments**: Shows all active **ModelDeployment** resources in your cluster. Each row shows the deployment name, phase (Pending, Deploying, Running, Failed), provider, engine, replica counts, and age.
-
-**Settings**: Has three tabs:
-
-- **General**: Cluster connectivity and runtime summary
-- **Runtimes**: Full view of each provider's installation status, capabilities (engines, serving modes, hardware support), and version. Also shows prerequisite checks (GPU Operator, Gateway API CRDs) and cluster autoscaling status
-- **Integrations**: Status of external services (GPU Operator health, Gateway API CRDs, Hugging Face OAuth)
-
-The Runtimes tab is the single place to confirm your cluster's inference stack is complete. If a provider shows as not installed, the auto-selection algorithm will skip it when matching deployments.
-
-</details>
-
 ### Quick Cluster Health Check
 
-Confirm your cluster has the right node pools and GPU resources:
+Now let's verify the cluster itself using the CLI. Open a new terminal tab and run the following command to confirm your cluster has the right node pools and GPU resources:
 
 ```bash
 kubectl get nodes -o wide
@@ -464,7 +465,7 @@ Check the GPU resources available:
 kubectl get node -l agentpool=inference -o yaml | yq '.items[0].status.allocatable | pick(["cpu", "memory", "nvidia.com/gpu"])'
 ```
 
-You should see **nvidia.com/gpu: "2"**, confirming 2 NVIDIA A100 GPUs are available.
+You should see **nvidia.com/gpu: "2"**, confirming 2 NVIDIA GPUs are available.
 
 > [!NOTE]
 > A GPU node pool with autoscaling is enabled for this workshop. On your own cluster, you'd provision the node pool and choose a VM SKU that fits your workload. See the [AKS docs](https://learn.microsoft.com/azure/aks/use-nvidia-gpu?tabs=add-ubuntu-gpu-node-pool) for details on GPU node pools.
@@ -500,7 +501,7 @@ If you already have a Hugging Face account, you can connect it now. In the **Set
 
 **Next up:** You'll deploy a GPU model with a minimal manifest and let AI Runway auto-select the provider and engine.
 
----
+===
 
 ## Module 3: GPU Auto-Selection & Validation
 
@@ -509,13 +510,13 @@ If you already have a Hugging Face account, you can connect it now. In the **Set
 **Objectives:**
 By the end of this module, you will be able to:
 
-- Deploy a GPU model without specifying a provider or engine
+- Deploy a GPU model with a minimal manifest
 - Verify AI Runway auto-selects Dynamo and vLLM
 - Understand how owner references chain resources together for automatic cleanup
 - Compare GPU vs CPU inference speed
 - Explain how the gateway routes requests to different models
 
-The CPU model covered the basic flow. Now you'll deploy a GPU model with a minimal manifest and watch AI Runway pick the right runtime.
+The CPU model covered the basic flow. Now you'll deploy a GPU model with a minimal manifest and watch AI Runway pick the right runtime. Switch back to your terminal for the next steps.
 
 > [!NOTE]
 > The dashboard's guided deployment flow lets you choose a runtime and engine explicitly. This module uses kubectl so you can see auto-selection in action.
@@ -562,10 +563,10 @@ kubectl get modeldeployment qwen3-gpu -n default -o yaml | yq '.status.provider,
 You may need to run the command above a few times to get the latest status updates. Expected output once selection completes:
 
 ```yaml
-name: dynamo
 resourceKind: DynamoGraphDeployment
 resourceName: qwen3-gpu
-selectedReason: "matched capabilities: engine=vllm, gpu=true, mode=aggregated"
+selectedReason: 'matched capabilities: engine=vllm, gpu=true, mode=aggregated'
+selectedReason: auto-selected from provider dynamo capabilities
 type: vllm
 ```
 
@@ -582,12 +583,12 @@ The controller follows a deterministic algorithm when **spec.provider.name** is 
 
 For this deployment:
 
-- You requested GPU → KAITO supports GPU, but Dynamo has a higher-priority rule for GPU workloads
-- No engine was specified → the controller auto-selected **vLLM** from Dynamo's supported engines
+- You requested GPU. Both KAITO and Dynamo support GPU, but Dynamo has a higher-priority rule for GPU workloads
+- No engine was specified, so the controller auto-selected **vLLM** from Dynamo's supported engines
 - The full selection reason is recorded in **status.provider.selectedReason** for transparency
 
 > [!NOTE]
-> This is a key difference from using providers directly. You don't necessarily need to know which provider to pick. Describe your requirements and the controller can match you to the right one. When provider capabilities change (for example, a new engine is added), existing deployments can benefit without manifest changes. And of course, you can always specify a provider and engine explicitly if you want to take control.
+> This is a key difference from using providers directly. You don't necessarily need to know which provider to pick. Describe your requirements and the controller can match you to the right one.
 
 ### Understand Resource Ownership
 
@@ -601,28 +602,69 @@ Check what the Dynamo provider deployed:
 kubectl get modeldeployment qwen3-gpu -o yaml | yq '.status.provider'
 ```
 
-The Dynamo provider created a **DynamoGraphDeployment** on your behalf. This is the provider-specific resource that represents your model deployment in Dynamo's world. The AI Runway controller set an owner reference from the DynamoGraphDeployment back to the ModelDeployment, which means Kubernetes understands that the DynamoGraphDeployment "belongs" to the ModelDeployment.
+The Dynamo provider created a **DynamoGraphDeployment** also named **qwen3-gpu** on your behalf. This is the provider-specific resource that represents your model deployment in Dynamo's world. The AI Runway controller set an owner reference from the DynamoGraphDeployment back to the ModelDeployment, which means Kubernetes understands that the DynamoGraphDeployment "belongs" to the ModelDeployment.
 
 Check the ownership chain:
 
 ```bash
-kubectl get dynamographdeployments.nvidia.com qwen3-gpu -o yaml | yq '.metadata.ownerReferences'
+kubectl get dynamographdeployments qwen3-gpu -o yaml | yq '.metadata.ownerReferences'
 ```
 
 This shows an owner reference pointing back to the **ModelDeployment**. The ownership works in layers:
 
-- **AI Runway core controller** creates the ModelDeployment status and gateway resources (HTTPRoute, cross-namespace grants)
+- **AI Runway core controller** creates the ModelDeployment status and gateway resources (if needed)
 - **AI Runway Dynamo provider** creates the DynamoGraphDeployment, linked to the ModelDeployment via owner reference
 - **Dynamo operator** creates the serving pods, InferencePool, and EPP, linked to the DynamoGraphDeployment
 
 This chain means deleting the ModelDeployment cascades through all layers, so provider resources, pods, and gateway routing are all cleaned up automatically.
 
+### How Gateway Routing Works
+
+You noticed that the ownership chain includes gateway resources. The controller doesn't just deploy your model; it also wires up the networking so the model is reachable through a shared gateway. But why does a gateway matter in the first place?
+
+In production, platform teams typically serve multiple models. Different models serve different needs: a small CPU model handles lightweight tasks at low cost, a larger GPU model handles complex reasoning or code generation, and specialized models handle domain-specific workloads. Without a shared gateway, consumers would need to track separate endpoints for each model and update their configurations every time the platform team changes how a model is served.
+
+A single inference gateway solves this. Consumers get one stable URL and specify which model they want in the request body. The gateway handles the routing, and the platform team can add, remove, or reconfigure models without breaking any client integrations.
+
+You'll see this firsthand once the deployment finishes: two requests to the same URL, two different `model` values, two different backends. Here's how the routing works under the hood.
+
+The **Gateway API Inference Extension** adds four components that work together to route inference traffic.
+
+1. **Body-Based Router (BBR)**: Standard HTTP routers match on headers, paths, or query parameters. But LLM API requests specify the model in the JSON body, not the URL. The BBR solves this by inspecting the request body, reading the `model` field, and matching it to the correct HTTPRoute. Without it, you'd need a separate URL path per model, which breaks the OpenAI API contract.
+
+2. **HTTPRoute**: Once the BBR identifies which model the request is for, the HTTPRoute forwards it to the correct InferencePool. This is the same HTTPRoute resource from the standard Gateway API, so existing networking policies and observability tools work with it out of the box.
+
+3. **InferencePool**: Groups the serving pods for a specific model, similar to how a Kubernetes Service groups pods. The difference is that an InferencePool is inference-aware: it knows which pods are running which models and can expose metadata (like KV-cache state) that helps with smarter routing decisions.
+
+4. **Endpoint Picker Proxy (EPP)**: A standard load balancer picks pods using round-robin or least-connections, which ignores what's happening inside the inference engine. The EPP makes routing decisions based on inference-specific signals. For example, it can route a follow-up request to the pod that already has the conversation's KV-cache in GPU memory, avoiding redundant prefill computation. Different providers can implement their own EPP with provider-specific optimizations.
+
+```mermaid
+graph TD
+    Client["Client Request<br/>POST /v1/chat/completions<br/>{'model': 'Qwen/Qwen3-Coder-30B-A3B-Instruct'}"] --> Gateway[Gateway + Istio]
+    Gateway --> BBR[Body-Based Router<br/>Extracts 'model' field]
+    BBR --> Route[HTTPRoute<br/>qwen3-coder-30b]
+    Route --> Pool[InferencePool<br/>qwen3-coder-30b]
+    Pool --> EPP[EPP - Endpoint Picker Proxy<br/>Routes to best available pod]
+    EPP --> Pod[Model Server Pod]
+```
+
+AI Runway creates all of these gateway resources automatically for each ModelDeployment with gateway enabled. You don't need to set up the routing yourself.
+
+> [+hint] How AI Runway handles gateway resources across providers
+>
+> The InferencePool and EPP creation depends on the provider:
+>
+> - **Providers with native gateway support** (like Dynamo): The provider controller creates a specialized InferencePool and EPP with advanced routing capabilities (like KV-cache affinity). The AI Runway core controller detects this through the provider's `InferenceProviderConfig` gateway capabilities and skips creating its own, avoiding duplication.
+> - **Providers without native gateway support** (like KAITO): The AI Runway core controller creates a generic InferencePool and deploys the upstream EPP.
+>
+> Either way, the result is the same for consumers: one endpoint, one API format, body-based routing to the right model.
+
 ### Wait for the Deployment
 
-Watch the pods until they're ready:
+Check the status of the pods:
 
 ```bash
-watch kubectl get pods -l app.kubernetes.io/part-of=qwen3-gpu
+kubectl get pods -l app.kubernetes.io/part-of=qwen3-gpu
 ```
 
 > [!TIP]
@@ -696,52 +738,6 @@ Both requests went to the same URL. The only difference was the `model` field in
 
 Go back to the dashboard and click on the **qwen3-gpu** deployment to see its details, including the runtime, engine, gateway endpoint, and metrics.
 
-### How Gateway Routing Works
-
-In production, platform teams typically serve multiple models. Different models serve different needs: a small CPU model handles lightweight tasks at low cost, a larger GPU model handles complex reasoning or code generation, and specialized models handle domain-specific workloads. Without a shared gateway, consumers would need to track separate endpoints for each model and update their configurations every time the platform team changes how a model is served.
-
-A single inference gateway solves this. Consumers get one stable URL and specify which model they want in the request body. The gateway handles the routing, and the platform team can add, remove, or reconfigure models without breaking any client integrations.
-
-You just saw this firsthand: two requests to the same URL, two different `model` values, two different backends. Here's how the routing works under the hood.
-
-The **Gateway API Inference Extension** adds four components that work together to route inference traffic. Each exists for a specific reason:
-
-```
-Client request → Gateway → BBR reads "model" field → HTTPRoute → InferencePool → EPP picks best pod → Response
-```
-
-1. **Body-Based Router (BBR)**: Standard HTTP routers match on headers, paths, or query parameters. But LLM API requests specify the model in the JSON body, not the URL. The BBR solves this by inspecting the request body, reading the `model` field, and matching it to the correct HTTPRoute. Without it, you'd need a separate URL path per model, which breaks the OpenAI API contract.
-
-2. **HTTPRoute**: Once the BBR identifies which model the request is for, the HTTPRoute forwards it to the correct InferencePool. This is the same HTTPRoute resource from the standard Gateway API, so existing networking policies and observability tools work with it out of the box.
-
-3. **InferencePool**: Groups the serving pods for a specific model, similar to how a Kubernetes Service groups pods. The difference is that an InferencePool is inference-aware: it knows which pods are running which models and can expose metadata (like KV-cache state) that helps with smarter routing decisions.
-
-4. **Endpoint Picker Proxy (EPP)**: A standard load balancer picks pods using round-robin or least-connections, which ignores what's happening inside the inference engine. The EPP makes routing decisions based on inference-specific signals. For example, it can route a follow-up request to the pod that already has the conversation's KV-cache in GPU memory, avoiding redundant prefill computation. Different providers can implement their own EPP with provider-specific optimizations.
-
-```mermaid
-graph TD
-    Client["Client Request<br/>POST /v1/chat/completions<br/>{'model': 'Qwen/Qwen3-Coder-30B-A3B-Instruct'}"] --> Gateway[Gateway + Istio]
-    Gateway --> BBR[Body-Based Router<br/>Extracts 'model' field]
-    BBR --> Route[HTTPRoute<br/>qwen3-coder-30b]
-    Route --> Pool[InferencePool<br/>qwen3-coder-30b]
-    Pool --> EPP[EPP - Endpoint Picker Proxy<br/>Routes to best available pod]
-    EPP --> Pod[Model Server Pod]
-```
-
-AI Runway creates all of these gateway resources automatically for each ModelDeployment with gateway enabled. You don't need to set up the routing yourself.
-
-<details>
-<summary>How AI Runway handles gateway resources across providers</summary>
-
-The InferencePool and EPP creation depends on the provider:
-
-- **Providers with native gateway support** (like Dynamo): The provider controller creates a specialized InferencePool and EPP with advanced routing capabilities (like KV-cache affinity). The AI Runway core controller detects this through the provider's `InferenceProviderConfig` gateway capabilities and skips creating its own, avoiding duplication.
-- **Providers without native gateway support** (like KAITO): The AI Runway core controller creates a generic InferencePool and deploys the upstream EPP.
-
-Either way, the result is the same for consumers: one endpoint, one API format, body-based routing to the right model.
-
-</details>
-
 ### Clean Up Deployments
 
 On the dashboard, click the **Delete** button to delete both model deployments to free resources for the larger model in Module 4.
@@ -759,7 +755,7 @@ The Kubernetes **owner references** you saw earlier automatically cleaned up the
 
 **Next up:** You'll configure production serving with disaggregated scaling and shared model caching.
 
----
+===
 
 ## Module 4: Production Serving Pattern
 
@@ -773,15 +769,10 @@ By the end of this module, you will be able to:
 - Understand how disaggregated serving improves scaling under load
 - Verify that different serving patterns are transparent to consumers through the gateway
 
-You've deployed individual models. Now you'll set up a deployment that looks more like a production service: split workloads that scale differently and cache model weights on shared storage.
+You've deployed individual models. Now you'll set up a deployment that looks more like a production service: split workloads that scale differently and cache model weights on shared storage. This is the first of three production concerns you'll work through in the remaining modules: serving reliably at scale, making models easy to consume, and operating the platform with confidence.
 
-For the rest of the workshop, keep these three production concerns in mind:
-
-| Step                       | Key question                                                                    | What you'll prove                                             |
-| -------------------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------- |
-| Serve it reliably          | Can the platform handle larger models with scalable serving and shared storage? | Disaggregated Dynamo serving with Lustre-backed model caching |
-| Make it easy to consume    | Can teams use one stable API instead of provider-specific endpoints?            | OpenAI-compatible gateway access from developer tools         |
-| Operate it with confidence | Can platform teams manage rollout state and observe platform health?            | GitOps status plus Prometheus/Grafana metrics                 |
+> [!NOTE]
+> This is the first production concern: **reliable serving at scale**. A production platform needs to handle larger models, scale inference workloads independently, and avoid slow cold starts when pods restart.
 
 ### Understanding Disaggregated Prefill/Decode
 
@@ -800,11 +791,14 @@ graph LR
 
 This enables independent scaling, better GPU utilization, lower latency (decode workers aren't blocked waiting on long prompts), and KV-cache routing affinity.
 
+> [!TIP]
+> In production, you'd typically run more decode workers than prefill workers. Prefill processes the entire input prompt in a single parallel forward pass and finishes quickly. Decode stays busy for the full response because it generates tokens one at a time (a 500-token response means 500 sequential forward passes). Under load, decode workers stay occupied longer per request, so you need more of them to handle concurrent users. To keep costs manageable in the lab, we use one GPU each for prefill and decode.
+
 ### Deploy with Disaggregated Serving and Model Caching
 
 Scaling model deployments across multiple GPU nodes can lead to longer startup times due to model weight loading. To mitigate this, you can use shared storage for model caching. In this lab, we use a pre-provisioned [Azure Managed Lustre](https://learn.microsoft.com/azure/azure-managed-lustre/amlfs-overview) PVC for model caching. Lustre delivers up to 500 MB/s per TiB with **ReadWriteMany** access, letting multiple pods share cached model weights without downloading them again.
 
-Before applying the manifest, confirm the shared model cache disk exists in the Dynamo namespace:
+Before applying the manifest, switch back to your terminal and confirm the shared model cache disk exists in the Dynamo namespace:
 
 ```bash
 kubectl get pvc dynamo-pvc -n dynamo-system
@@ -851,37 +845,18 @@ spec:
 EOF
 ```
 
-<details>
-<summary>Using a Hugging Face token for authenticated downloads</summary>
+> [+hint] Using a Hugging Face token for authenticated downloads
+>
+> If you connected Hugging Face through the dashboard in Module 2, a Kubernetes secret named **hf-token-secret** was automatically created in all provider namespaces. To use it, add the `secrets` field to your ModelDeployment spec:
+>
+> ```yaml
+> secrets:
+>   huggingFaceToken: hf-token-secret
+> ```
+>
+> The lab path uses a public model that doesn't require authentication, so this is optional.
 
-If you connected Hugging Face through the dashboard in Module 2, a Kubernetes secret named **hf-secret** was automatically created in the **airunway-system** namespace. To use it, copy the secret into the deployment namespace and reference it in your manifest:
-
-```bash
-kubectl get secret hf-secret -n airunway-system -o json \
-  | jq 'del(.metadata.namespace, .metadata.resourceVersion, .metadata.uid, .metadata.creationTimestamp)' \
-  | kubectl apply -n dynamo-system -f -
-```
-
-Then add the `secrets` field to the bottom of your ModelDeployment spec:
-
-```yaml
-secrets:
-  huggingFaceToken: hf-secret # Name of the K8s secret containing HF_TOKEN
-```
-
-Alternatively, you can create a secret manually:
-
-```bash
-kubectl create secret generic hf-token \
-  --from-literal=HF_TOKEN=<your-token> \
-  -n dynamo-system
-```
-
-The lab path uses a public model that doesn't require authentication, so this is optional.
-
-</details>
-
-The disaggregated deployment creates two pods (one prefill + one decode) and may take 5-7 minutes. Start watching the pods while we walk through what this manifest does:
+The disaggregated deployment creates two pods (one prefill + one decode) and may take 5-7 minutes. Start watching the pods while we walk through some of the key fields in the manifest:
 
 ```bash
 watch kubectl get pods -n dynamo-system
@@ -900,29 +875,24 @@ While that runs, here are the key fields in this manifest and what they do:
 
 - **engine.contextLength**: Sets the maximum number of tokens the model can process in a single request (prompt + response combined). AI Runway maps this to the engine-specific flag (for example, `--max-model-len` in vLLM). The value **131072** here matches the Qwen3-Coder model's supported context window. Setting this too high for the available GPU memory causes out-of-memory errors at startup. Setting it too low limits the length of conversations or documents the model can handle. When omitted, the engine uses the model's default, which may be lower than its maximum capability.
 
-> [!TIP]
-> To keep costs manageable in the lab, we use one GPU each for prefill and decode. In production, you'd typically run more decode workers than prefill workers. Prefill processes the entire input prompt in a single parallel forward pass and finishes quickly. Decode stays busy for the full response because it generates tokens one at a time (a 500-token response means 500 sequential forward passes). Under load, decode workers stay occupied longer per request, so you need more of them to handle concurrent users.
-
 Continue watching the deployment. You'll eventually see separate prefill and decode pods come online. Once all **qwen3-coder-30b** pods show **Running**, press **Ctrl+C** to stop the watch.
 
 ![Deployments page showing qwen3-coder-30b with disaggregated prefill/decode status](instructions342912/8i5vcz98.png)
+
+> [!TIP]
+> If you want to see what's happening under the hood while you wait, open a **new terminal tab** and watch the decode worker logs for model loading progress:
+>
+> ```bash
+> kubectl logs -n dynamo-system --selector app.kubernetes.io/name=qwen3-coder-30b-0-vllmdecodeworker -f
+> ```
+>
+> Press **Ctrl+C** when done, then close this tab.
 
 Once the pods are running, check the ModelDeployment and make sure its phase is **Running**:
 
 ```bash
 kubectl get modeldeployment qwen3-coder-30b -n dynamo-system
 ```
-
-<details>
-<summary>Watch decode worker logs</summary>
-
-> If you want to see what's happening under the hood while you wait, you can watch the decode worker logs for model loading progress:
-
-```bash
-kubectl logs -n dynamo-system --selector app.kubernetes.io/name=qwen3-coder-30b-0-vllmdecodeworker -f
-```
-
-</details>
 
 ### Test the Production Deployment
 
@@ -942,7 +912,7 @@ curl -s http://$GATEWAY_IP/v1/chat/completions \
   -H "Content-Type: application/json" \
   -d '{
     "model": "Qwen/Qwen3-Coder-30B-A3B-Instruct",
-    "messages": [{"role": "user", "content": "Write a Python function that returns the Fibonacci sequence up to n."}],
+    "messages": [{"role": "user", "content": "What are the benefits of disaggregated serving?"}],
     "max_tokens": 200
   }' | jq
 ```
@@ -960,7 +930,7 @@ The disaggregated deployment is reachable through the same gateway as every othe
 
 **Next up:** You'll use the gateway endpoint the way an application team would, plugging it into developer tools as an OpenAI-compatible service.
 
----
+===
 
 ## Module 5: Platform Consumer Path
 
@@ -975,7 +945,7 @@ By the end of this module, you will be able to:
 With models running in your cluster, it's time to see this from the consumer side. In Module 4, you were the platform team building the serving layer. Now you're an application team using it.
 
 > [!NOTE]
-> This is the second production concern: **easy consumption**. Internal teams should only need a base URL, a model name, and the standard OpenAI API format. No Kubernetes knowledge required.
+> This is the second of three production concerns: **easy consumption**. Internal teams should only need a base URL, a model name, and the standard OpenAI API format. No Kubernetes knowledge required.
 
 ### Integrate with Developer Tooling
 
@@ -991,108 +961,108 @@ Since AI Runway exposes **OpenAI-compatible endpoints**, any tool that speaks th
 > [!WARNING]
 > **Choose ONE of the two options below.** Both achieve the same result. Pick whichever workflow you prefer.
 
-<details>
-<summary>Option A: GitHub Copilot CLI</summary>
+> [+] **Option A: GitHub Copilot CLI**
+>
+> In the terminal, make sure you are in the root of the AI Runway repository. If not, run:
+>
+> ```bash
+> cd ~/airunway
+> ```
+>
+> GitHub Copilot CLI supports custom model providers through environment variables. Set these to point Copilot at your AKS-hosted model:
+>
+> Get the inference gateway IP address:
+>
+> ```bash
+> GATEWAY_IP=$(kubectl get gateway -n istio-system inference-gateway -o jsonpath='{.status.addresses[0].value}')
+> ```
+>
+> Environment variables for custom model provider configuration:
+>
+> ```bash
+> export COPILOT_PROVIDER_BASE_URL=http://$GATEWAY_IP/v1
+> export COPILOT_PROVIDER_TYPE=openai
+> export COPILOT_MODEL=Qwen/Qwen3-Coder-30B-A3B-Instruct
+> export COPILOT_PROVIDER_MAX_PROMPT_TOKENS=128000
+> export COPILOT_PROVIDER_MAX_OUTPUT_TOKENS=16000
+> ```
+>
+> With these set, Copilot routes all completions through your self-hosted model instead of the public API. Inference stays private and within your network.
+>
+> > [!TIP]
+> > You can run `copilot help providers` to see a full list of available options.
+>
+> Then use Copilot with your local model:
+>
+> ```bash
+> copilot
+> ```
+>
+> When GitHub Copilot CLI loads, grant it permissions to access files in the current folder (**~/airunway**).
+>
+> You should see that the Copilot CLI has loaded agent instructions from the AI Runway repo and has a few skills available.
+>
+> Enter the following prompt: `Tell me everything I need to know about AI Runway`
+>
+> ![Copilot CLI connected to local Qwen/Qwen3-Coder-30B-A3B-Instruct model](instructions342912/m04cj0et.png)
 
-In the terminal, make sure you are in the root of the AI Runway repository. If not, run:
-
-```bash
-cd ~/airunway
-```
-
-GitHub Copilot CLI supports custom model providers through environment variables. Set these to point Copilot at your AKS-hosted model:
-
-Get the inference gateway IP address:
-
-```bash
-GATEWAY_IP=$(kubectl get gateway -n istio-system inference-gateway -o jsonpath='{.status.addresses[0].value}')
-```
-
-Environment variables for custom model provider configuration:
-
-```bash
-export COPILOT_PROVIDER_BASE_URL=http://$GATEWAY_IP/v1
-export COPILOT_PROVIDER_TYPE=openai
-export COPILOT_MODEL=Qwen/Qwen3-Coder-30B-A3B-Instruct
-export COPILOT_PROVIDER_MAX_PROMPT_TOKENS=128000
-export COPILOT_PROVIDER_MAX_OUTPUT_TOKENS=16000
-```
-
-With these set, Copilot routes all completions through your self-hosted model instead of the public API. Inference stays private and within your network.
-
-> [!TIP]
-> You can run `copilot help providers` to see a full list of available options.
-
-Then use Copilot with your local model:
-
-```bash
-copilot
-```
-
-When GitHub Copilot CLI loads, grant it permissions to access files in the current folder (**~/airunway**).
-
-You should see that the Copilot CLI has loaded agent instructions from the AI Runway repo and has a few skills available.
-
-Enter the following prompt: `Tell me everything I need to know about AI Runway`
-
-![Copilot CLI connected to local Qwen/Qwen3-Coder-30B-A3B-Instruct model](instructions342912/m04cj0et.png)
-
-</details>
-
-<details>
-<summary>Option B: VS Code</summary>
-
-VS Code supports [custom language model configurations](https://code.visualstudio.com/docs/copilot/customization/language-models) that let Copilot use your self-hosted models.
-
-Run the following command in your WSL terminal to write the VS Code language model configuration with your gateway IP automatically. This tells VS Code where to find your self-hosted model so Copilot can use it instead of the default cloud-hosted models.
-
-> [!TIP]
-> The path below points to the VS Code settings folder on the Windows filesystem, accessed from WSL via `/mnt/c/`. If you're running VS Code natively on Linux or macOS, the path would be different (for example, `~/.config/Code/User/` on Linux).
-
-```bash
-GATEWAY_IP=$(kubectl get gateway -n istio-system inference-gateway -o jsonpath='{.status.addresses[0].value}')
-cat > "/mnt/c/Users/LabUser/AppData/Roaming/Code - Insiders/User/chatLanguageModels.json" <<EOF
-[
-  {
-    "name": "OpenAI Compatible",
-    "vendor": "customoai",
-    "models": [
-      {
-        "id": "Qwen/Qwen3-Coder-30B-A3B-Instruct",
-        "name": "Qwen/Qwen3-Coder-30B-A3B-Instruct",
-        "url": "http://$GATEWAY_IP/v1",
-        "toolCalling": true,
-        "vision": true,
-        "maxInputTokens": 128000,
-        "maxOutputTokens": 16000
-      }
-    ]
-  }
-]
-EOF
-```
-
-This writes the configuration file directly with your gateway IP filled in. No manual editing needed.
-
-In VS Code, click the Copilot icon in the editor to toggle open the Copilot pane. Click on **Auto** to open the model selector.
-
-![VS Code editor showing Copilot pane with custom model selected](instructions342912/sl1rnawg.png)
-
-Click on the model selector and select **Other Models** to expand the options.
-
-![VS Code showing custom model in the model selector dropdown](instructions342912/xv7bo5ip.png)
-
-You should see your custom model (**Qwen/Qwen3-Coder-30B-A3B-Instruct**) listed under the **OpenAI Compatible** provider. Click it.
-
-![VS Code showing OpenAI Compatible models](instructions342912/fta32rld.png)
-
-Now Copilot in VS Code routes all completions through your self-hosted model running in AKS.
-
-Enter the following prompt: `Tell me everything I need to know about AI Runway`
-
-![Chat prompt](instructions342912/eomh6cal.png)
-
-</details>
+> [+] **Option B: VS Code**
+>
+> VS Code supports [custom language model configurations](https://code.visualstudio.com/docs/copilot/customization/language-models) that let Copilot use your self-hosted models.
+>
+> Run the following command in your WSL terminal to get the gateway IP:
+>
+> ```bash
+> GATEWAY_IP=$(kubectl get gateway -n istio-system inference-gateway -o jsonpath='{.status.addresses[0].value}')
+> echo "Gateway IP: $GATEWAY_IP"
+> ```
+>
+> Then write the VS Code language model configuration file with your gateway IP filled in:
+>
+> ```bash
+> cat > "/mnt/c/Users/LabUser/AppData/Roaming/Code - Insiders/User/chatLanguageModels.json" <<EOF
+> [
+>   {
+>     "name": "OpenAI Compatible",
+>     "vendor": "customoai",
+>     "models": [
+>       {
+>         "id": "Qwen/Qwen3-Coder-30B-A3B-Instruct",
+>         "name": "Qwen/Qwen3-Coder-30B-A3B-Instruct",
+>         "url": "http://$GATEWAY_IP/v1",
+>         "toolCalling": true,
+>         "vision": true,
+>         "maxInputTokens": 128000,
+>         "maxOutputTokens": 16000
+>       }
+>     ]
+>   }
+> ]
+> EOF
+> ```
+>
+> > [!TIP]
+> > The path above points to the VS Code settings folder on the Windows filesystem, accessed from WSL via `/mnt/c/`. If you're running VS Code natively on Linux or macOS, the path would be different (for example, `~/.config/Code/User/` on Linux).
+>
+> This tells VS Code where to find your self-hosted model so Copilot can use it instead of the default cloud-hosted models. No manual editing needed.
+>
+> In VS Code, click the Copilot icon in the editor to toggle open the Copilot pane. Click on **Auto** to open the model selector.
+>
+> ![VS Code editor showing Copilot pane with custom model selected](instructions342912/sl1rnawg.png)
+>
+> Click on the model selector and select **Other Models** to expand the options.
+>
+> ![VS Code showing custom model in the model selector dropdown](instructions342912/xv7bo5ip.png)
+>
+> You should see your custom model (**Qwen/Qwen3-Coder-30B-A3B-Instruct**) listed under the **OpenAI Compatible** provider. Click it.
+>
+> ![VS Code showing OpenAI Compatible models](instructions342912/fta32rld.png)
+>
+> Now Copilot in VS Code routes all completions through your self-hosted model running in AKS.
+>
+> Enter the following prompt: `Tell me everything I need to know about AI Runway`
+>
+> ![Chat prompt](instructions342912/eomh6cal.png)
 
 > [!TIP]
 > The first response from a self-hosted model may take longer than you're used to from cloud APIs. This is normal. The model is running on your cluster's GPUs, and the first request warms up the inference pipeline.
@@ -1109,7 +1079,7 @@ This tests whether the model can read the codebase, find the selection logic, an
 
 **Code generation:** Ask it to write something new based on existing patterns.
 
-`Write a ModelDeployment manifest that deploys Meta's Llama 3.1 8B model on a single GPU using the vLLM engine`
+`Write a ModelDeployment manifest that deploys deepseek-ai/DeepSeek-Coder-V2-Lite-Instruct on a single GPU using the vLLM engine`
 
 Check whether the output follows the same CRD structure you've been using. Does it include the right apiVersion? Does the resource spec make sense given what you know about the fields?
 
@@ -1135,11 +1105,9 @@ This tests whether the model can synthesize information across multiple files (t
 - Self-hosted inference addresses data sovereignty, quota limits, and network locality requirements
 
 > [!NOTE]
-> **Checkpoint:** You've now completed the main AI Runway workflow: deploying CPU and GPU models, serving them through a shared OpenAI-compatible gateway, configuring disaggregated serving, and connecting developer tools to your self-hosted endpoint.
+> **Checkpoint:** You've addressed two of three production concerns: reliable serving at scale and easy consumption. If time allows, continue with the optional operations module to complete the set with operational confidence.
 
-If time allows, continue with the optional operations module to see how platform teams manage rollout state and observe metrics.
-
----
+===
 
 ## Module 6: Optional - Operate the Platform
 
@@ -1158,7 +1126,7 @@ By the end of this module, you will be able to:
 This module covers how platform teams keep things repeatable and observable: GitOps for managing rollout state, and Prometheus for tracking delivery metrics.
 
 > [!NOTE]
-> This is the final production concern: **operational confidence**. A production platform needs declarative rollout, visible health, and measurable reliability.
+> This is the third of three production concerns: **operational confidence**. A production platform needs declarative rollout, visible health, and measurable reliability.
 
 ### How This Lab Was Built: GitOps with Argo CD
 
@@ -1166,12 +1134,16 @@ Everything running in this cluster (the AI Runway controller, provider controlle
 
 A single "root" Argo CD Application points to a directory of child Application manifests. Argo CD discovers and syncs all of them, with **sync waves** controlling the order: CRDs and storage first (wave -1), then the AI Runway controller (wave 0), then provider operators (wave 1).
 
-Verify for yourself. First, retrieve the Argo CD admin password and log in:
+Verify for yourself. Switch back to your terminal and start a port-forward to the Argo CD server. This will occupy the terminal:
+
+```bash
+kubectl port-forward svc/argo-cd-argocd-server -n argocd 9000:80
+```
+
+Open a **new terminal tab**, retrieve the Argo CD admin password, and log in:
 
 ```bash
 ARGOCD_PWD=$(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
-kubectl port-forward svc/argo-cd-argocd-server -n argocd 9000:80 &
-sleep 3
 argocd login localhost:9000 --username admin --password "$ARGOCD_PWD" --insecure
 ```
 
@@ -1189,7 +1161,7 @@ All applications should show **Synced** and **Healthy**.
 This is where ModelDeployment's declarative design pays off for GitOps. Each manifest is a self-contained YAML file that fully describes the desired state of a model deployment: model ID, engine, resources, serving mode, and gateway configuration. That makes them versionable in Git, diffable in pull requests, and reviewable before anything touches the cluster. If Argo CD detects drift (someone manually edits a resource), it reconciles back to what's in Git. And if a deployment breaks, rolling back is just reverting a commit.
 
 > [!TIP]
-> See [Appendix C](#appendix-c-implement-ai-runway-in-your-workspace) for the complete App of Apps pattern, sync wave ordering, and root Application YAML.
+> See [Appendix B](#appendix-b-reproduce-this-lab-in-your-own-environment) for the complete App of Apps pattern, sync wave ordering, and root Application YAML.
 
 ### AI Runway Controller Metrics & DORA Indicators
 
@@ -1215,29 +1187,29 @@ The AI Runway controller metrics are collected by Prometheus and visualized in G
 
 ### Import the Platform Overview Dashboard
 
-In a **new terminal tab**, port-forward Grafana (this will occupy the terminal):
-
-```bash
-kubectl port-forward svc/prometheus-grafana -n monitoring 3000:80
-```
-
-In a new browser tab navigate to `http://localhost:3000`.
-
-Open a **new terminal tab** and get the Grafana admin password:
+First, get the Grafana admin password:
 
 ```bash
 kubectl get secret --namespace monitoring -l app.kubernetes.io/component=admin-secret -o jsonpath="{.items[0].data.admin-password}" | base64 --decode ; echo
 ```
 
-Log in using `admin` as the username and paste the password that was printed in the terminal.
+Now start a port-forward to Grafana. This will occupy the terminal:
 
-Navigate to the **Dashboard import page** at `http://localhost:3000/dashboard/import`.
+```bash
+kubectl port-forward svc/prometheus-grafana -n monitoring 3000:80
+```
+
+In a new browser tab navigate to +++http://localhost:3000+++.
+
+Log in using +++admin+++ as the username and paste the password that was printed in the previous terminal.
+
+Navigate to the **Dashboard import page** at +++http://localhost:3000/dashboard/import+++.
 
 Use the dashboard JSON file included in the repo: **demos/observability/sample-dashboard.json**.
 
-Click in the **Upload dashboard JSON file** area then type `\\wsl.localhost\Ubuntu\home\labuser\airunway\demos\observability` in the Windows Explorer address bar then press **enter**. You should see the `sample-dashboard.json` file. Click on the file, then click the **Open** button.
+Click in the **Upload dashboard JSON file** area then type +++\\\wsl.localhost\Ubuntu\home\labuser\airunway\demos\observability+++ in the Windows Explorer address bar then press **enter**. You should see the +++sample-dashboard.json+++ file. Click on the file, then click the **Open** button.
 
-![c94yu7sx.png](instructions342912/c94yu7sx.png)
+!IMAGE[c94yu7sx.png](instructions342912/c94yu7sx.png)
 
 > [!TIP]
 > If the browser file picker cannot browse to your WSL files, open **demos/observability/sample-dashboard.json** in VS Code, copy the full contents, paste it into the **Import via dashboard JSON model** text box, then click **Load**.
@@ -1255,16 +1227,13 @@ The dashboard is organized into five rows:
 > [!NOTE]
 > The DORA row ties platform engineering to AI inference operations. **Deployment Frequency** shows how actively teams ship models. **Lead Time** measures the gap from `kubectl apply` to serving traffic; the provision duration chart below isolates whether delays come from queue time or GPU scheduling. **Change Failure Rate** highlights spec validation gaps or provider issues. **Currently Failed Deployments** is a quick health check. These are the same signals SRE teams track for microservices, applied to your inference platform.
 
-<details>
-<summary>Optional: Import the NVIDIA DCGM GPU dashboard</summary>
-
-The NVIDIA GPU Operator (which was installed as part of the cluster bootstrap) includes the **DCGM Exporter**, a component that exposes GPU metrics like utilization, memory usage, and temperature. Since we already configured Prometheus to scrape metrics from all namespaces, those GPU metrics are already being collected. All you need is a dashboard to visualize them.
-
-Import the [NVIDIA DCGM Exporter Dashboard](https://grafana.com/grafana/dashboards/12219-nvidia-dcgm-exporter-dashboard/): in Grafana, go to **Dashboards → New → Import**, enter dashboard ID `12219`, click **Load**, select the **Prometheus** data source, and click **Import**.
-
-![Grafana dashboard showing GPU utilization metrics](instructions342912/dpyal48g.png)
-
-</details>
+> [+hint] Optional: Import the NVIDIA DCGM GPU dashboard
+>
+> The NVIDIA GPU Operator (which was installed as part of the cluster bootstrap) includes the **DCGM Exporter**, a component that exposes GPU metrics like utilization, memory usage, and temperature. Since we already configured Prometheus to scrape metrics from all namespaces, those GPU metrics are already being collected. All you need is a dashboard to visualize them.
+>
+> Import the [NVIDIA DCGM Exporter Dashboard](https://grafana.com/grafana/dashboards/12219-nvidia-dcgm-exporter-dashboard/): in Grafana, go to **Dashboards → New → Import**, enter dashboard ID +++12219+++, click **Load**, select the **Prometheus** data source, and click **Import**.
+>
+> ![Grafana dashboard showing GPU utilization metrics](instructions342912/dpyal48g.png)
 
 **What you learned in this module:**
 
@@ -1272,30 +1241,30 @@ Import the [NVIDIA DCGM Exporter Dashboard](https://grafana.com/grafana/dashboar
 - Prometheus and Grafana show whether model rollouts are healthy, slow, or failing
 - DORA-style indicators bring the same delivery metrics used for application platforms to AI operations
 
----
+===
 
 ## Summary
 
 ### What You Built
 
-Step back and think about what you have running right now. You built an inference platform on Kubernetes that:
+You started with a single CPU model and a blank cluster. You ended with a multi-model inference platform that addresses all three production concerns:
 
-- **Serves models across different hardware** without writing provider-specific configuration. A CPU model running on KAITO with llama.cpp and a GPU model running on Dynamo with vLLM, both deployed through the same ModelDeployment interface.
-- **Splits inference workloads for production scale.** Your Qwen Coder deployment runs disaggregated prefill and decode on separate GPUs, backed by shared Lustre storage so model weights download once and are available to every pod instantly.
-- **Routes traffic through a single gateway.** Application teams hit one URL and specify a model name. The platform handles the rest: body-based routing, inference-aware pod selection, and provider-specific optimizations like KV-cache affinity.
-- **Plugs directly into developer tools.** You connected GitHub Copilot or VS Code to your self-hosted models. No external API calls, no data leaving your network. The same OpenAI-compatible endpoint works with any client that speaks that protocol.
-- **Gives operators visibility into what's happening.** Prometheus metrics, Grafana dashboards, and DORA indicators show deployment health, rollout speed, and provider activity in real time.
+**Reliable serving at scale.** Your Qwen Coder deployment runs disaggregated prefill and decode on separate GPUs, backed by shared Lustre storage so model weights download once and are available to every pod instantly. You deployed models across different hardware (CPU on KAITO with llama.cpp, GPU on Dynamo with vLLM) without writing any provider-specific configuration.
+
+**Easy consumption.** Application teams hit one URL and specify a model name. The gateway handles body-based routing, inference-aware pod selection, and provider-specific optimizations like KV-cache affinity. You connected GitHub Copilot or VS Code to your self-hosted models with no external API calls and no data leaving your network.
+
+**Operational confidence.** Prometheus metrics, Grafana dashboards, and DORA indicators show deployment health, rollout speed, and provider activity in real time. GitOps keeps everything declarative and repeatable.
 
 > [!NOTE]
-> Every pattern you used here carries over to production: declarative manifests, GitOps-managed rollout, shared gateway routing, and observable metrics. See [Appendix C](#appendix-c-implement-ai-runway-in-your-workspace) for a starting point you can adapt for your own environment.
+> Every pattern you used here carries over to production: declarative manifests, GitOps-managed rollout, shared gateway routing, and observable metrics. See [Appendix B](#appendix-b-reproduce-this-lab-in-your-own-environment) for a starting point you can adapt for your own environment.
 
 ### Get Involved
 
-AI Runway is open source and community-driven. Here's how to stay connected:
+AI Runway is open source and still early. The patterns you just learned put you in a great position to shape where the project goes next. Here's how to stay connected:
 
 - **Star the repo**: [github.com/kaito-project/airunway](https://github.com/kaito-project/airunway)
 - **File issues**: Found a bug or have a feature request? Open an issue on GitHub
-- **Reproduce this lab**: Use the Terraform and GitOps templates in [Appendix C](#appendix-c-implement-ai-runway-in-your-workspace) to stand up AI Runway in your own environment
+- **Reproduce this lab**: Use the Terraform and GitOps templates in [Appendix B](#appendix-b-reproduce-this-lab-in-your-own-environment) to stand up AI Runway in your own environment
 - **Join the community**: Connect with other users and contributors in the [#airunway channel](https://cloud-native.slack.com/archives/C0AQBU447QX) on CNCF Slack
 
 ### Additional Resources
@@ -1308,10 +1277,12 @@ AI Runway is open source and community-driven. Here's how to stay connected:
 - [Azure Managed Lustre CSI Driver](https://learn.microsoft.com/azure/azure-managed-lustre/use-csi-driver-kubernetes)
 - [Argo CD Documentation](https://argo-cd.readthedocs.io/en/stable/)
 
+The appendixes that follow cover the full provider capability matrix, troubleshooting tips, and a guide for reproducing this setup in your own environment.
+
 > [!WARNING]
 > When you're finished, click the **End** button in the upper right to delete all resources. The temporary Azure subscription, cluster, and virtual machine are automatically cleaned up. If you don't end the lab manually, it will be deleted when time elapses.
 
----
+===
 
 ## Appendix A: Provider Capability Matrix & Selection Rules
 
@@ -1342,65 +1313,9 @@ When you omit **spec.provider.name**, the controller evaluates these rules in or
 
 The selection reason is always recorded in **status.provider.selectedReason** for observability.
 
----
+===
 
-## Appendix B: Troubleshooting Tips
-
-### No Gateway Endpoint?
-
-If your deployment is running but no Gateway Endpoint appears, the gateway resources (InferencePool, HTTPRoute) may have failed to create. Check the Argo CD application status to confirm.
-
-Retrieve Argo CD password:
-
-```bash
-ARGOCD_PWD=$(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
-```
-
-Port-forward to the Argo CD API server (this will occupy the terminal):
-
-```bash
-kubectl port-forward svc/argo-cd-argocd-server -n argocd 9000:80
-```
-
-Open a **new terminal tab** and log in to the Argo CD dashboard:
-
-```bash
-argocd login localhost:9000 --username admin --password "$ARGOCD_PWD" --insecure
-```
-
-> [!TIP]
-> You can also open a web browser and navigate to <http://localhost:9000> to access the Argo CD dashboard with the same credentials.
-
-Check the gateway-api application:
-
-```bash
-argocd app get gateway-api
-```
-
-If it's not Synced and Healthy, sync it manually:
-
-```bash
-argocd app sync gateway-api --prune
-```
-
-Confirm the app is now healthy and synced:
-
-```bash
-argocd app get gateway-api
-```
-
-If a model needs its gateway endpoint re-enabled:
-
-```bash
-MD_NAME=$(kubectl get modeldeployment -n dynamo-system -o jsonpath='{.items[0].metadata.name}')
-kubectl patch modeldeployment $MD_NAME -n dynamo-system \
---type='merge' \
--p '{"spec":{"gateway":{"enabled":true}}}'
-```
-
----
-
-## Appendix C: Implement AI Runway in Your Workspace
+## Appendix B: Reproduce This Lab in Your Own Environment
 
 This lab was pre-provisioned so you could focus on AI Runway rather than infrastructure setup. This appendix walks through what was provisioned and how, so you can reproduce the pattern in your own environment. The workshop source code lives in the [`demos/workshop/`](https://github.com/kaito-project/airunway/tree/main/demos/workshop) directory of the AI Runway repository.
 
@@ -1442,30 +1357,7 @@ graph TD
 
 Each child Application can pull from a different source: plain YAML in a Git repo for custom manifests, or upstream Helm charts for third-party operators like Dynamo, KAITO, and KubeRay. Argo CD unifies them into a single reconciliation loop.
 
-The root App of Apps manifest (`demos/workshop/manifests/app-of-apps.yaml`) looks like this:
-
-```yaml
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: app-of-apps
-  namespace: argocd
-  finalizers:
-    - resources-finalizer.argocd.argoproj.io
-spec:
-  project: default
-  source:
-    repoURL: https://github.com/pauldotyu/Build26-LAB510.git
-    targetRevision: HEAD
-    path: src/manifests/argocd/apps # Directory of child Application YAMLs
-  destination:
-    server: https://kubernetes.default.svc
-    namespace: argocd
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-```
+The root Application is defined in [`demos/workshop/manifests/app-of-apps.yaml`](https://github.com/kaito-project/airunway/tree/main/demos/workshop/manifests/app-of-apps.yaml). It points at the `demos/workshop/manifests/argocd/apps/` directory, where each child Application YAML lives. Terraform applies this manifest automatically after installing Argo CD (see `kubectl_manifest.argo_cd_app` in `main.tf`).
 
 This means you can bootstrap an entire inference platform on a fresh cluster with a single manifest:
 
@@ -1473,39 +1365,27 @@ This means you can bootstrap an entire inference platform on a fresh cluster wit
 kubectl apply -f app-of-apps.yaml
 ```
 
-Argo CD handles the rest, using **sync waves** to control deployment order so dependencies are satisfied before anything references them:
+Argo CD handles the rest, using **sync waves** to control deployment order so dependencies are satisfied before anything references them. Each child Application is defined in [`demos/workshop/manifests/argocd/apps/`](https://github.com/kaito-project/airunway/tree/main/demos/workshop/manifests/argocd/apps):
 
-| Wave   | Application  | Source                                                                                                 | What It Deploys                                                                                                                                                                                       |
-| ------ | ------------ | ------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **-1** | `gateway`    | Gateway API CRDs (v1.5.1), GAIE CRDs (v1.5.0), and the Body-Based Router Helm chart (v1.5.0 for Istio) | Gateway API and inference routing CRDs must exist before anything references them                                                                                                                     |
-| **-1** | `lustre`     | Plain YAML manifests for the Azure Lustre CSI driver                                                   | CSI driver, RBAC, and DaemonSets so Lustre-backed PVCs can be mounted                                                                                                                                 |
-| **-1** | `prometheus` | `kube-prometheus-stack` Helm chart (v84.4.0)                                                           | Prometheus, Grafana, and monitoring CRDs (ServiceMonitor, PodMonitor). Configured to discover monitors from all namespaces                                                                            |
-| **0**  | `airunway`   | Multi-source: controller manifests, provider manifests, and gateway manifests from the repo            | The AI Runway core controller, all four provider controllers (Dynamo, KAITO, KubeRay, llm-d), the shared inference Gateway, ServiceMonitors, PodMonitors, and the Lustre-backed PVC for model caching |
-| **1**  | `dynamo`     | `dynamo-platform` Helm chart (v1.0.2) from NVIDIA                                                      | NVIDIA Dynamo operator and its CRDs                                                                                                                                                                   |
-| **1**  | `kaito`      | `workspace` Helm chart (v0.10.0) from KAITO                                                            | KAITO workspace operator (with node auto-provisioning, NFD, and local CSI disabled since the GPU Operator handles those)                                                                              |
-| **1**  | `kuberay`    | `kuberay-operator` Helm chart (v1.6.1) from Ray Project                                                | KubeRay operator for Ray-based inference workloads                                                                                                                                                    |
+| Wave   | Application  | What It Deploys                                                                                                                                                                                       |
+| ------ | ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **-1** | `gateway`    | Gateway API CRDs, GAIE CRDs, and the Body-Based Router Helm chart for Istio. These must exist before anything references them                                                                         |
+| **-1** | `lustre`     | Azure Lustre CSI driver, RBAC, and DaemonSets so Lustre-backed PVCs can be mounted                                                                                                                    |
+| **-1** | `prometheus` | `kube-prometheus-stack` Helm chart with Prometheus, Grafana, and monitoring CRDs. Configured to discover monitors from all namespaces                                                                  |
+| **0**  | `airunway`   | The AI Runway core controller, all four provider controllers (Dynamo, KAITO, KubeRay, llm-d), the shared inference Gateway, ServiceMonitors, PodMonitors, and the Lustre-backed PVC for model caching |
+| **1**  | `dynamo`     | NVIDIA Dynamo operator and its CRDs                                                                                                                                                                   |
+| **1**  | `kaito`      | KAITO workspace operator (with node auto-provisioning, NFD, and local CSI disabled since the GPU Operator handles those)                                                                              |
+| **1**  | `kuberay`    | KubeRay operator for Ray-based inference workloads                                                                                                                                                    |
+
+Chart names, versions, and Helm values are specified in each child Application YAML. Review the files directly for the most current configuration.
 
 ### What the AI Runway Manifests Include
 
-The `demos/workshop/manifests/airunway/` directory contains three subdirectories that the `airunway` Argo CD Application deploys together:
+The [`demos/workshop/manifests/airunway/`](https://github.com/kaito-project/airunway/tree/main/demos/workshop/manifests/airunway) directory contains three subdirectories that the `airunway` Argo CD Application deploys together:
 
-**`controller/`** contains the core AI Runway controller:
-
-- Namespace (`airunway-system`), ServiceAccount, ClusterRole, and ClusterRoleBinding
-- The controller Deployment (image: `ghcr.io/kaito-project/airunway/controller`)
-- A Kustomize overlay that pins a specific image tag
-- ServiceMonitor for Prometheus to scrape controller metrics, plus a DCGM exporter ServiceMonitor for GPU telemetry
-
-**`providers/`** contains the out-of-tree provider controllers:
-
-- Each provider (Dynamo, KAITO, KubeRay, llm-d) has its own Namespace, ServiceAccount, ClusterRole, ClusterRoleBinding, and Deployment
-- PodMonitors for each provider's inference pods (so Prometheus scrapes vLLM/engine metrics)
-- A Lustre-backed PVC (`dynamo-pvc`, 4 TiB, `ReadWriteMany`) in the `dynamo-system` namespace for shared model weight caching
-- A Kustomize overlay that pins provider image tags
-
-**`gateway/`** contains the shared inference Gateway:
-
-- A Gateway resource in `istio-system` using the `istio` gatewayClassName, with `allowedRoutes` set to `All` namespaces and a TCP health probe annotation for AKS compatibility
+- **`controller/`**: The core AI Runway controller, including namespace (`airunway-system`), RBAC, Deployment, Kustomize overlay for image pinning, and ServiceMonitors for Prometheus scraping
+- **`providers/`**: Out-of-tree provider controllers (Dynamo, KAITO, KubeRay, llm-d), each with its own namespace, RBAC, and Deployment. Also includes PodMonitors for inference engine metrics and a Lustre-backed PVC (`dynamo-pvc`) for shared model weight caching
+- **`gateway/`**: The shared inference Gateway resource in `istio-system`, configured for all-namespace HTTPRoute discovery
 
 ### Adapting This for Your Environment
 
@@ -1513,7 +1393,7 @@ Use these files as a starting point, not a production baseline. Before deploying
 
 - **Azure region and quotas**: The Terraform defaults to `brazilsouth`. Update `var.location` and confirm you have quota for the GPU VM SKU you need. The list of supported regions is constrained by Azure Managed Lustre availability.
 - **GPU node pool sizing**: The lab uses a single Standard_NC48ads_A100_v4 node (2x A100). Adjust the VM SKU, node count, and autoscaling range for your workload.
-- **Repository URLs**: The Argo CD applications point at `https://github.com/pauldotyu/Build26-LAB510.git`. Update these to your own repository.
+- **Repository URLs**: The Argo CD applications currently point at a separate repository. Update `repoURL` and `path` in `app-of-apps.yaml` and each child Application in `argocd/apps/` to point at your own fork or repository.
 - **Secrets strategy**: The lab uses a GitHub App for Argo CD repository access. Replace with your organization's Git authentication method.
 - **Provider selection**: Install only the inference providers your teams need. Remove unused provider manifests and their Argo CD applications.
 - **Image tags**: The Kustomize overlays pin specific image tags. Update these to released versions from `ghcr.io/kaito-project/airunway/`.
@@ -1526,3 +1406,54 @@ Use these files as a starting point, not a production baseline. Before deploying
 3. **Verify the platform is healthy.** Check that all Argo CD applications show Synced and Healthy, all provider controllers are Running in the `airunway-system` namespace, and `kubectl get inferenceproviderconfigs` shows your providers as Ready.
 4. **Commit your first ModelDeployment to Git.** Let Argo CD reconcile it. Watch `status.conditions` progress through ProviderSelected, EngineSelected, ResourceCreated, Ready, and GatewayReady.
 5. **Validate the endpoint.** Confirm the gateway IP is reachable and send an OpenAI-compatible `/v1/chat/completions` request before handing the platform to application teams.
+
+===
+
+## Appendix C: Troubleshooting Tips
+
+### No Gateway Endpoint?
+
+If your deployment is running but no Gateway Endpoint appears, the gateway resources (InferencePool, HTTPRoute) may have failed to create. Check the Argo CD application status to confirm.
+
+Port-forward to the Argo CD API server (this will occupy the terminal):
+
+```bash
+kubectl port-forward svc/argo-cd-argocd-server -n argocd 9000:80
+```
+
+Open a **new terminal tab**, retrieve the Argo CD password, and log in:
+
+```bash
+ARGOCD_PWD=$(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
+argocd login localhost:9000 --username admin --password "$ARGOCD_PWD" --insecure
+```
+
+> [!TIP]
+> You can also open a web browser and navigate to <http://localhost:9000> to access the Argo CD dashboard with the same credentials.
+
+Check the gateway-api application:
+
+```bash
+argocd app get gateway-api
+```
+
+If it's not Synced and Healthy, sync it manually:
+
+```bash
+argocd app sync gateway-api --prune
+```
+
+Confirm the app is now healthy and synced:
+
+```bash
+argocd app get gateway-api
+```
+
+If a model needs its gateway endpoint re-enabled:
+
+```bash
+MD_NAME=$(kubectl get modeldeployment -n dynamo-system -o jsonpath='{.items[0].metadata.name}')
+kubectl patch modeldeployment $MD_NAME -n dynamo-system \
+--type='merge' \
+-p '{"spec":{"gateway":{"enabled":true}}}'
+```
