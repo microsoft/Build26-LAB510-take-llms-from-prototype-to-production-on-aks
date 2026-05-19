@@ -847,8 +847,6 @@ spec:
       replicas: 1
       gpu:
         count: 1
-  gateway:
-    enabled: true
 EOF
 ```
 
