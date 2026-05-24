@@ -20,6 +20,12 @@ spec:
     matchExpressions:
       - key: airunway.ai/deployment
         operator: Exists
+      - key: nvidia.com/dynamo-component
+        operator: DoesNotExist
+      - key: kaito.sh/workspace
+        operator: DoesNotExist
+      - key: ray.io/node-type
+        operator: DoesNotExist
   podMetricsEndpoints:
     - port: http
       path: /metrics

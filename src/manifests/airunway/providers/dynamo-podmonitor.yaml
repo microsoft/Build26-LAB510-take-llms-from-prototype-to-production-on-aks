@@ -18,9 +18,13 @@ spec:
   selector:
     matchLabels:
       nvidia.com/metrics-enabled: "true"
+    matchExpressions:
+      - key: nvidia.com/dynamo-component-type
+        operator: In
+        values: ["frontend", "worker"]
   podMetricsEndpoints:
     # Frontend / router pods (port 8000)
-    - port: http
+    - portNumber: 8000
       path: /metrics
       interval: 15s
       scrapeTimeout: 10s
@@ -45,7 +49,7 @@ spec:
           targetLabel: provider
           replacement: dynamo
     # Worker pods - decode and prefill (port 9090)
-    - port: system
+    - portNumber: 9090
       path: /metrics
       interval: 15s
       scrapeTimeout: 10s
@@ -73,3 +77,5 @@ spec:
         - action: replace
           targetLabel: provider
           replacement: dynamo
+  namespaceSelector:
+    any: true

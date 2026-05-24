@@ -42,3 +42,5 @@ spec:
         - action: replace
           targetLabel: provider
           replacement: kaito
+  namespaceSelector:
+    any: true
