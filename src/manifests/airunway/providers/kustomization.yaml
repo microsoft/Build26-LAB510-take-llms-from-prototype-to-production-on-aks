@@ -19,7 +19,7 @@ images:
   newTag: 849c487
 - name: ghcr.io/kaito-project/airunway/kuberay-provider
   newName: ghcr.io/pauldotyu/airunway/kuberay-provider
-  newTag: 849c487
+  newTag: dev-1779594281
 - name: ghcr.io/kaito-project/airunway/llmd-provider
   newName: ghcr.io/pauldotyu/airunway/llmd-provider
   newTag: 849c487
