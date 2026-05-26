@@ -36,6 +36,7 @@ spec:
     matchLabels:
       app.kubernetes.io/name: airunway
       control-plane: controller-manager
+  scrapeClassicHistograms: true
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
