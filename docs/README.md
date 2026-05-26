@@ -535,10 +535,6 @@ spec:
   model:
     id: Qwen/Qwen3-0.6B
     source: huggingface
-  engine:
-    type: vllm
-  provider:
-    name: dynamo
   resources:
     gpu:
       count: 1
