@@ -1,15 +1,15 @@
 # PodMonitor for KAITO inference pods
 #
 # KAITO Workspace pods expose metrics on different ports depending on the engine:
-#   - vLLM presets: port 80 (exposes vllm:* Prometheus metrics)
-#   - llamacpp presets: port 5000 (does NOT expose Prometheus metrics)
+#   - vLLM presets: port 5000 (exposes vllm:* Prometheus metrics)
+#   - llamacpp presets: port 5000 (does NOT expose Prometheus inference metrics)
 #
 # This monitor scrapes the pod's "http" port on /metrics. Pods that do not
 # expose Prometheus metrics on that port will not return scrape data.
 apiVersion: monitoring.coreos.com/v1
 kind: PodMonitor
 metadata:
-  name: kaito-inference-metrics
+  name: kaito-workspace
   namespace: kaito-workspace
   labels:
     release: prometheus
@@ -20,21 +20,12 @@ spec:
       - key: kaito.sh/workspace
         operator: Exists
   podMetricsEndpoints:
-    # vLLM preset models serve on port 80
-    - port: "http"
+    # KAITO vLLM preset pods serve on port 5000 (unnamed port)
+    - portNumber: 5000
       path: /metrics
       interval: 30s
       scrapeTimeout: 10s
       relabelings:
-        - action: replace
-          sourceLabels: [__meta_kubernetes_pod_name]
-          targetLabel: pod
-        - action: replace
-          sourceLabels: [__meta_kubernetes_namespace]
-          targetLabel: namespace
-        - action: replace
-          sourceLabels: [__meta_kubernetes_pod_label_kaito_sh_workspace]
-          targetLabel: workspace
         - action: replace
           targetLabel: provider
           replacement: kaito

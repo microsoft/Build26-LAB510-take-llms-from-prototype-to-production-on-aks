@@ -6,12 +6,13 @@
 # metrics.
 #
 # When running inside Ray Serve, vLLM metrics use a "ray_vllm_" prefix
-# instead of the standalone "vllm:" prefix. For example:
-#   ray_vllm_num_requests_running, ray_vllm_time_to_first_token_seconds, etc.
+# instead of the standalone "vllm:" prefix. The metricRelabelings below
+# normalize "ray_vllm_" to "vllm:" so dashboard queries work across all
+# providers without prefix-specific logic.
 apiVersion: monitoring.coreos.com/v1
 kind: PodMonitor
 metadata:
-  name: kuberay-inference-metrics
+  name: kuberay-worker
   namespace: kuberay-system
   labels:
     release: prometheus
@@ -31,13 +32,12 @@ spec:
       scrapeTimeout: 10s
       relabelings:
         - action: replace
-          sourceLabels: [__meta_kubernetes_pod_name]
-          targetLabel: pod
-        - action: replace
-          sourceLabels: [__meta_kubernetes_namespace]
-          targetLabel: namespace
-        - action: replace
           targetLabel: provider
           replacement: kuberay
+      metricRelabelings:
+        - sourceLabels: [__name__]
+          regex: "ray_vllm_(.*)"
+          targetLabel: __name__
+          replacement: "vllm:$1"
   namespaceSelector:
     any: true

@@ -3,7 +3,6 @@ kind: Kustomization
 resources:
 - dynamo.yaml
 - dynamo-pvc.yaml
-- dynamo-podmonitor.yaml
 - kaito.yaml
 - kaito-podmonitor.yaml
 - kuberay.yaml
