@@ -5,6 +5,10 @@
 #   - VllmDecodeWorker:        port system/9090 — dynamo_component_*, vllm:*
 #   - VllmPrefillWorker:       port system/9090 — dynamo_component_*, vllm:*
 #
+# The worker metrics port is controlled by DYN_SYSTEM_PORT (defaults to 9090
+# in Kubernetes, 8081 for local development).
+# See: https://docs.dynamo.nvidia.com/dynamo/backends/v-llm/observability
+#
 # All Dynamo inference pods carry the label nvidia.com/metrics-enabled=true.
 apiVersion: monitoring.coreos.com/v1
 kind: PodMonitor
@@ -40,15 +44,9 @@ spec:
             [__meta_kubernetes_pod_label_nvidia_com_dynamo_component]
           targetLabel: dynamo_component
         - action: replace
-          sourceLabels:
-            [
-              __meta_kubernetes_pod_label_nvidia_com_dynamo_graph_deployment_name,
-            ]
-          targetLabel: model_deployment
-        - action: replace
           targetLabel: provider
           replacement: dynamo
-    # Worker pods - decode and prefill (port 9090)
+    # Worker pods - decode and prefill (port 9090, DYN_SYSTEM_PORT default in K8s)
     - portNumber: 9090
       path: /metrics
       interval: 15s
@@ -68,12 +66,6 @@ spec:
           sourceLabels:
             [__meta_kubernetes_pod_label_nvidia_com_dynamo_sub_component_type]
           targetLabel: dynamo_role
-        - action: replace
-          sourceLabels:
-            [
-              __meta_kubernetes_pod_label_nvidia_com_dynamo_graph_deployment_name,
-            ]
-          targetLabel: model_deployment
         - action: replace
           targetLabel: provider
           replacement: dynamo

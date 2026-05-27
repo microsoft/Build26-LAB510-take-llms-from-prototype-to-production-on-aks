@@ -1,11 +1,13 @@
 # PodMonitor for KubeRay inference pods
 #
-# KubeRay deploys a RayService with head and worker pods. vLLM runs inside
-# Ray Serve on the head node and serves on port 8000, which also exposes
-# Prometheus metrics at /metrics.
+# KubeRay deploys a RayService with head and worker pods. vLLM runs on the
+# worker nodes and exposes metrics via the Ray metrics port (8080). The head
+# pod exports Ray system metrics on the same port but does not serve vLLM
+# metrics.
 #
-# Worker pods run Ray worker processes and do not expose vLLM metrics directly.
-# This monitor targets head pods (which run the serve application).
+# When running inside Ray Serve, vLLM metrics use a "ray_vllm_" prefix
+# instead of the standalone "vllm:" prefix. For example:
+#   ray_vllm_num_requests_running, ray_vllm_time_to_first_token_seconds, etc.
 apiVersion: monitoring.coreos.com/v1
 kind: PodMonitor
 metadata:
@@ -15,16 +17,13 @@ metadata:
     release: prometheus
     app.kubernetes.io/part-of: airunway
 spec:
-  # KubeRay RayService pods carry the airunway model-deployment label
-  # set by the KubeRay transformer. The ray.io/node-type label distinguishes
-  # head from worker pods.
   selector:
     matchExpressions:
       - key: airunway.ai/model-deployment
         operator: Exists
       - key: ray.io/node-type
         operator: In
-        values: ["head"]
+        values: ["worker"]
   podMetricsEndpoints:
     - port: metrics
       path: /metrics
@@ -37,10 +36,6 @@ spec:
         - action: replace
           sourceLabels: [__meta_kubernetes_namespace]
           targetLabel: namespace
-        - action: replace
-          sourceLabels:
-            [__meta_kubernetes_pod_label_airunway_ai_model_deployment]
-          targetLabel: model_deployment
         - action: replace
           targetLabel: provider
           replacement: kuberay
