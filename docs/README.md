@@ -1295,6 +1295,14 @@ The appendixes that follow cover the full provider capability matrix, troublesho
 > [!WARNING]
 > When you're finished, click the **End** button in the upper right to delete all resources. The temporary Azure subscription, cluster, and virtual machine are automatically cleaned up. If you don't end the lab manually, it will be deleted when time elapses.
 
+### Cleanup
+
+When you're finished with the lab, run the following command in your terminal (from the `src/infra` directory) to clean up all resources:
+
+```bash
+terraform destroy -refresh=false -auto-approve
+```
+
 ---
 
 ## Appendix A: Provider Capability Matrix & Selection Rules
