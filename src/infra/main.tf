@@ -123,13 +123,21 @@ resource "random_integer" "example" {
   max = 99999
 }
 
+resource "random_string" "example" {
+  length  = 4
+  upper   = false
+  lower   = true
+  number  = false
+  special = false
+}
+
 resource "azurerm_resource_group" "example" {
-  name     = "rg-msbuildlab510"
+  name     = "rg-msbuildlab510${random_string.example.result}"
   location = var.location
 }
 
 resource "azurerm_virtual_network" "example" {
-  name                = "vnet-msbuildlab510"
+  name                = "vnet-msbuildlab510${random_string.example.result}"
   address_space       = ["10.21.0.0/16"]
   location            = azurerm_resource_group.example.location
   resource_group_name = azurerm_resource_group.example.name
@@ -168,7 +176,7 @@ resource "azurerm_subnet" "aks_inference" {
 }
 
 resource "azurerm_managed_lustre_file_system" "example" {
-  name                   = "lfs-msbuildlab510"
+  name                   = "lfs-msbuildlab510${random_string.example.result}"
   resource_group_name    = azurerm_resource_group.example.name
   location               = azurerm_resource_group.example.location
   sku_name               = "AMLFS-Durable-Premium-500"
@@ -183,10 +191,10 @@ resource "azurerm_managed_lustre_file_system" "example" {
 }
 
 resource "azurerm_kubernetes_cluster" "example" {
-  name                = "aks-msbuildlab510"
+  name                = "aks-msbuildlab510${random_string.example.result}"
   location            = azurerm_resource_group.example.location
   resource_group_name = azurerm_resource_group.example.name
-  dns_prefix          = "aks-msbuildlab510"
+  dns_prefix          = "aks-msbuildlab510${random_string.example.result}"
   kubernetes_version  = "1.35"
 
   default_node_pool {
