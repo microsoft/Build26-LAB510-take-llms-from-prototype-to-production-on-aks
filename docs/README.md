@@ -388,7 +388,7 @@ The AI Runway dashboard is an optional web interface for visualizing and managin
 Clone the repository
 
 ```bash
-cd ~ && git clone --branch v0.5.0 https://github.com/kaito-project/airunway.git
+cd ~ && git clone https://github.com/kaito-project/airunway.git
 ```
 
 Navigate into the repo directory
