@@ -57,7 +57,7 @@ GitOps tells you what _should_ be running. Metrics tell you what's _actually_ ha
 | ---------------------------------------------- | ------------------------------------------------------------------------------------------------ |
 | airunway_reconciliation_errors_total           | Reconciliation errors by controller and provider, useful for spotting repeated failures          |
 | airunway_provider_selection_total              | Provider selection counts, showing which runtimes are being chosen by auto-selection             |
-| airunway_deployment_phase                      | Current phase for each ModelDeployment (pending, running, failed)                                |
+| airunway_deployment_status                     | Status for each ModelDeployment by provider and phase                                            |
 | airunway_deployment_provision_duration_seconds | Provider resource provisioning time, tracked separately from model startup and gateway readiness |
 
 The dashboard also surfaces key metrics that map to [DORA metrics](https://dora.dev/guides/dora-metrics-four-keys/):
