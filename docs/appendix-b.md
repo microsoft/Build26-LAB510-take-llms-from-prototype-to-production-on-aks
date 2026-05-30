@@ -10,8 +10,8 @@ The Terraform code in `demos/workshop/infra/main.tf` bootstraps the underlying A
 graph LR
     subgraph Azure["Azure Resources"]
         VNet["Virtual Network · 10.21.0.0/16"]
-        Lustre["Azure Managed Lustre · 4 TB<br/>10.21.1.0/24"]
         AKS["AKS Cluster · K8s 1.35+"]
+        Lustre["Azure Managed Lustre · 4 TB<br/>10.21.1.0/24"]
         DefaultNP["CPU Node Pool<br/>Standard_D4d_v4 · 3-6 nodes<br/>10.21.2.0/24"]
         InferenceNP["GPU Node Pool<br/>Standard_NC48ads_A100_v4 · 1 node<br/>10.21.3.0/24"]
     end
@@ -25,9 +25,10 @@ graph LR
 
     subgraph Apps["Argo CD App-of-Apps"]
         GW["Gateway API CRDs +<br/>Inference Extension +<br/>Body-Based Routing"]
-        AIRunway["AI Runway Controller"]
+        AIRunway["AI Runway Controller + Providers + Monitors"]
         KAITO["KAITO"]
         Dynamo["NVIDIA Dynamo"]
+        llm-d[llm-d]
         LustreCSI["Lustre CSI Driver"]
         KubeRay["KubeRay"]
     end
@@ -43,6 +44,7 @@ graph LR
     AIRunway -.->|orchestrates| KAITO
     AIRunway -.->|orchestrates| Dynamo
     AIRunway -.->|orchestrates| KubeRay
+    AIRunway -.->|orchestrates| llm-d
     AIRunway -.->|routes via| GW
     Dynamo <-.->|model cache| LustreCSI
 ```
