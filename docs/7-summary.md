@@ -43,6 +43,8 @@ terraform destroy -refresh=false -auto-approve
 
 ---
 
-- [Appendix A: Provider Capability Matrix & Selection Rules](appendix-a.md)
-- [Appendix B: Reproduce This Lab in Your Own Environment](appendix-b.md)
-- [Appendix C: Troubleshooting Tips](appendix-c.md)
+## Appendix
+
+[Appendix A: Provider Capability Matrix & Selection Rules](appendix-a.md)
+[Appendix B: Reproduce This Lab in Your Own Environment](appendix-b.md)
+[Appendix C: Troubleshooting Tips](appendix-c.md)
