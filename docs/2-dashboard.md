@@ -31,7 +31,7 @@ cd airunway
 
 Open the repository in VS Code by clicking **File --> Open Folder...**, type `/home/labuser/airunway` in the path, then click the **OK** button.
 
-![Open AI Runway repo in VS Code](instructions342912/m1fyrb56.png)
+![Open AI Runway repo in VS Code](images/m1fyrb56.png)
 
 > [!NOTE]
 > When VS Code opens the folder, all previous terminal sessions will be gone. You will need to open a new terminal to continue.
@@ -54,7 +54,7 @@ This launches both the frontend and backend. The backend API runs on port 3001 a
 
 Open the **Deployments** page in the left sidebar. You should see **gemma2-2b-cpu** from Module 1 listed with its phase and readiness status. Each row shows the deployment name, phase (Pending, Deploying, Running, Failed), provider, engine, replica counts, and age.
 
-![Deployments page showing gemma-cpu progressing through phases](instructions342912/pxad4emk.png)
+![Deployments page showing gemma-cpu progressing through phases](images/pxad4emk.png)
 
 Click **gemma2-2b-cpu** to open the deployment details. You'll see the runtime (KAITO), engine (LLAMACPP), model name, gateway endpoint, an example curl command, metrics, and logs. This is the same information you queried with `kubectl get modeldeployment -o yaml`, presented visually.
 
@@ -68,9 +68,9 @@ Click **Settings** in the left sidebar. The Settings page has three tabs that gi
 
 **Integrations** shows the status of external services like GPU Operator health, Gateway API CRDs, and Hugging Face OAuth. If you already have a Hugging Face account, click **Connect Hugging Face** and follow the OAuth flow. Once connected, you'll see your Hugging Face username and a **Connected** badge.
 
-![Settings page showing runtimes and integrations status](instructions342912/warfybl6.png)
+![Settings page showing runtimes and integrations status](images/warfybl6.png)
 
-![Hugging Face connection in the Integrations tab showing connected status](instructions342912/z8f1jasa.png)
+![Hugging Face connection in the Integrations tab showing connected status](images/z8f1jasa.png)
 
 > [!TIP]
 > Skip the Hugging Face connection if you do not already have an account. The rest of the workshop uses public models and does not require Hugging Face authentication.
@@ -79,7 +79,7 @@ Click **Settings** in the left sidebar. The Settings page has three tabs that gi
 
 Click **Models** in the left sidebar. This page is a catalog of models organized by engine compatibility. Each card shows the model name, parameter count, required GPU memory, and supported inference engines (vLLM, SGLang, TensorRT-LLM, llama.cpp). The **Deploy →** button on each card opens a guided deployment flow where you pick a runtime, engine, and resource allocation. In this workshop, we use kubectl manifests instead so you can see auto-selection at work.
 
-![Model catalog page showing curated models with engine tags and Deploy buttons](instructions342912/7gkuzguq.png)
+![Model catalog page showing curated models with engine tags and Deploy buttons](images/7gkuzguq.png)
 
 ### Quick Cluster Health Check
 
@@ -117,7 +117,7 @@ The gateway should show **PROGRAMMED: True** with an external IP. All controller
 
 If you already have a Hugging Face account, you can connect it now. In the **Settings** page, click the **Integrations** tab, then click **Connect Hugging Face** and follow the OAuth flow. Once connected, you'll see your Hugging Face username and a **Connected** badge.
 
-![Hugging Face connection in the Integrations tab showing connected status](instructions342912/z8f1jasa.png)
+![Hugging Face connection in the Integrations tab showing connected status](images/z8f1jasa.png)
 
 > [!TIP]
 > Skip this step if you do not already have an account. The rest of the workshop uses public models and does not require Hugging Face authentication.

@@ -119,7 +119,7 @@ While that runs, here are the key fields in this manifest and what they do:
 
 Continue watching the deployment. You'll eventually see separate prefill and decode pods come online. Once all **qwen3-coder-30b** pods show **Running**, press **Ctrl+C** to stop the watch.
 
-![Deployments page showing qwen3-coder-30b with disaggregated prefill/decode status](instructions342912/8i5vcz98.png)
+![Deployments page showing qwen3-coder-30b with disaggregated prefill/decode status](images/8i5vcz98.png)
 
 > [!TIP]
 > If you want to see what's happening under the hood while you wait, open a **new terminal tab** and watch the decode worker logs for model loading progress:

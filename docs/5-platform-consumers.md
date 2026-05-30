@@ -71,7 +71,7 @@ You should see that the Copilot CLI has loaded agent instructions from the AI Ru
 
 Enter the following prompt: `Tell me everything I need to know about AI Runway`
 
-![Copilot CLI connected to local Qwen/Qwen3-Coder-30B-A3B-Instruct model](instructions342912/m04cj0et.png)
+![Copilot CLI connected to local Qwen/Qwen3-Coder-30B-A3B-Instruct model](images/m04cj0et.png)
 
 </details>
 
@@ -118,21 +118,21 @@ This tells VS Code where to find your self-hosted model so Copilot can use it in
 
 In VS Code, click the Copilot icon in the editor to toggle open the Copilot pane. Click on **Auto** to open the model selector.
 
-![VS Code editor showing Copilot pane with custom model selected](instructions342912/sl1rnawg.png)
+![VS Code editor showing Copilot pane with custom model selected](images/sl1rnawg.png)
 
 Click on the model selector and select **Other Models** to expand the options.
 
-![VS Code showing custom model in the model selector dropdown](instructions342912/xv7bo5ip.png)
+![VS Code showing custom model in the model selector dropdown](images/xv7bo5ip.png)
 
 You should see your custom model (**Qwen/Qwen3-Coder-30B-A3B-Instruct**) listed under the **OpenAI Compatible** provider. Click it.
 
-![VS Code showing OpenAI Compatible models](instructions342912/fta32rld.png)
+![VS Code showing OpenAI Compatible models](images/fta32rld.png)
 
 Now Copilot in VS Code routes all completions through your self-hosted model running in AKS.
 
 Enter the following prompt: `Tell me everything I need to know about AI Runway`
 
-![Chat prompt](instructions342912/eomh6cal.png)
+![Chat prompt](images/eomh6cal.png)
 
 </details>
 

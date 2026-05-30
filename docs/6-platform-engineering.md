@@ -118,7 +118,7 @@ The NVIDIA GPU Operator (which was installed as part of the cluster bootstrap) i
 
 Import the [NVIDIA DCGM Exporter Dashboard](https://grafana.com/grafana/dashboards/12219-nvidia-dcgm-exporter-dashboard/): in Grafana, go to **Dashboards → New → Import**, enter dashboard ID `12219`, click **Load**, select the **Prometheus** data source, and click **Import**.
 
-![Grafana dashboard showing GPU utilization metrics](instructions342912/dpyal48g.png)
+![Grafana dashboard showing GPU utilization metrics](images/dpyal48g.png)
 
 </details>
 

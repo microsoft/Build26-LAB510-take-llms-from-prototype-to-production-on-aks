@@ -43,7 +43,7 @@ By requesting **spec.resources.gpu.count: 1**, the controller auto-selects **Dyn
 
 In the dashboard, click **Deployments**. You'll see **qwen3-gpu** appear and progress through lifecycle phases:
 
-![Deployments page showing both gemma-cpu and qwen3-gpu with their status](instructions342912/r1un7bj4.png)
+![Deployments page showing both gemma-cpu and qwen3-gpu with their status](images/r1un7bj4.png)
 
 ### Inspect the Auto-Selection Result
 
