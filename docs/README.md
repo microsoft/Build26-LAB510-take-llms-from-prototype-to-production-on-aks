@@ -43,7 +43,7 @@ Everything else (GPU operators, inference engines, Gateway API, Argo CD) is cove
 
 ### Required Tools
 
-The lab VM comes pre-installed with the following tools:
+To complete the lab exercises, make sure you have the following tools installed on your local machine:
 
 | Tool                                                                      | Purpose                                                             |
 | ------------------------------------------------------------------------- | ------------------------------------------------------------------- |
@@ -56,7 +56,7 @@ The lab VM comes pre-installed with the following tools:
 | [Git](https://git-scm.com/)                                               | Clone the AI Runway repository                                      |
 | [Argo CD CLI](https://argo-cd.readthedocs.io/en/stable/cli_installation/) | Optional GitOps tooling to check on Argo CD application deployments |
 | [GitHub Copilot CLI](https://github.com/features/copilot/cli/)            | GitHub-native terminal agent (requires version 1.0.44 or higher)    |
-| [Visual Studio Code](https://code.visualstudio.com/download)              | Open source code editor (requires version 1.120.0 or higher)        |
+| [Visual Studio Code (VS Code)](https://code.visualstudio.com/download)    | Open source code editor (requires version 1.120.0 or higher)        |
 
 ### Lab infrastructure setup
 
@@ -76,7 +76,54 @@ terraform init
 terraform apply
 ```
 
-This creates a resource group, an AKS cluster (with CPU and GPU node pools), Azure Managed Lustre storage, and bootstraps the AI Runway application components via Argo CD. Once complete, grab the outputs and connect to the cluster:
+This creates a resource group, an AKS cluster (with CPU and GPU node pools), Azure Managed Lustre storage, and bootstraps the AI Runway application components via Argo CD.
+
+Here is a high-level architecture diagram of the deployed infrastructure and applications:
+
+```mermaid
+graph LR
+    subgraph Azure["Azure Resources"]
+        VNet["Virtual Network · 10.21.0.0/16"]
+        Lustre["Azure Managed Lustre · 4 TB<br/>10.21.1.0/24"]
+        AKS["AKS Cluster · K8s 1.35+"]
+        DefaultNP["CPU Node Pool<br/>Standard_D4d_v4 · 3-6 nodes<br/>10.21.2.0/24"]
+        InferenceNP["GPU Node Pool<br/>Standard_NC48ads_A100_v4 · 1 node<br/>10.21.3.0/24"]
+    end
+
+    subgraph Installed["Helm Releases"]
+        GPU["NVIDIA GPU Operator"]
+        Istio["Istio + Gateway API"]
+        Prom["Prometheus"]
+        ArgoCD["Argo CD"]
+    end
+
+    subgraph Apps["Argo CD App-of-Apps"]
+        GW["Gateway API CRDs +<br/>Inference Extension +<br/>Body-Based Routing"]
+        AIRunway["AI Runway Controller"]
+        KAITO["KAITO"]
+        Dynamo["NVIDIA Dynamo"]
+        LustreCSI["Lustre CSI Driver"]
+        KubeRay["KubeRay"]
+    end
+
+    VNet --- AKS
+    VNet --- Lustre
+    AKS --> DefaultNP
+    AKS --> InferenceNP
+
+    AKS ==> Installed
+    ArgoCD ==> Apps
+
+    AIRunway -.->|orchestrates| KAITO
+    AIRunway -.->|orchestrates| Dynamo
+    AIRunway -.->|orchestrates| KubeRay
+    AIRunway -.->|routes via| GW
+    Dynamo <-.->|model cache| LustreCSI
+```
+
+> [!NOTE] More details on the infrastructure and application architecture can be found in [Appendix B: Reproduce This Lab in Your Own Environment](appendix-b.md).
+
+Once complete, grab the outputs and connect to the cluster:
 
 ```bash
 RG_NAME=$(terraform output -raw rg_name)

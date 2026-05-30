@@ -4,13 +4,54 @@ This lab was pre-provisioned so you could focus on AI Runway rather than infrast
 
 ### What the Infrastructure Looks Like
 
-The Terraform code in `demos/workshop/infra/main.tf` provisions the full Azure foundation:
+The Terraform code in `demos/workshop/infra/main.tf` bootstraps the underlying Azure infrastructure and platform services. Here is a high-level architecture diagram of what it creates:
+
+```mermaid
+graph LR
+    subgraph Azure["Azure Resources"]
+        VNet["Virtual Network · 10.21.0.0/16"]
+        Lustre["Azure Managed Lustre · 4 TB<br/>10.21.1.0/24"]
+        AKS["AKS Cluster · K8s 1.35+"]
+        DefaultNP["CPU Node Pool<br/>Standard_D4d_v4 · 3-6 nodes<br/>10.21.2.0/24"]
+        InferenceNP["GPU Node Pool<br/>Standard_NC48ads_A100_v4 · 1 node<br/>10.21.3.0/24"]
+    end
+
+    subgraph Installed["Helm Releases"]
+        GPU["NVIDIA GPU Operator"]
+        Istio["Istio + Gateway API"]
+        Prom["Prometheus"]
+        ArgoCD["Argo CD"]
+    end
+
+    subgraph Apps["Argo CD App-of-Apps"]
+        GW["Gateway API CRDs +<br/>Inference Extension +<br/>Body-Based Routing"]
+        AIRunway["AI Runway Controller"]
+        KAITO["KAITO"]
+        Dynamo["NVIDIA Dynamo"]
+        LustreCSI["Lustre CSI Driver"]
+        KubeRay["KubeRay"]
+    end
+
+    VNet --- AKS
+    VNet --- Lustre
+    AKS --> DefaultNP
+    AKS --> InferenceNP
+
+    AKS ==> Installed
+    ArgoCD ==> Apps
+
+    AIRunway -.->|orchestrates| KAITO
+    AIRunway -.->|orchestrates| Dynamo
+    AIRunway -.->|orchestrates| KubeRay
+    AIRunway -.->|routes via| GW
+    Dynamo <-.->|model cache| LustreCSI
+```
 
 | Resource                               | Purpose                                                                                                                   |
 | -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
 | **Resource group**                     | Contains all lab resources                                                                                                |
 | **Virtual network** with three subnets | Separates Lustre storage (`10.21.1.0/24`), default CPU nodes (`10.21.2.0/24`), and GPU inference nodes (`10.21.3.0/24`)   |
-| **AKS cluster**                        | Kubernetes 1.35, system-assigned identity, default CPU node pool (Standard_D4d_v4, 3-6 nodes with autoscaling)            |
+| **AKS cluster**                        | Kubernetes 1.35+, system-assigned identity, default CPU node pool (Standard_D4d_v4, 3-6 nodes with autoscaling)           |
 | **GPU node pool**                      | Standard_NC48ads_A100_v4 (2x A100 GPUs), GPU driver set to `None` because the NVIDIA GPU Operator manages drivers instead |
 | **Azure Managed Lustre**               | 4 TiB `AMLFS-Durable-Premium-500` filesystem for shared model caching                                                     |
 
