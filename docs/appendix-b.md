@@ -1,6 +1,6 @@
 ## Appendix B: Reproduce This Lab in Your Own Environment
 
-This lab was pre-provisioned so you could focus on AI Runway rather than infrastructure setup. This appendix walks through what was provisioned and how, so you can reproduce the pattern in your own environment. The workshop source code lives in the [`demos/workshop/`](https://github.com/kaito-project/airunway/tree/main/demos/workshop) directory of the AI Runway repository.
+This lab was pre-provisioned so you could focus on AI Runway rather than infrastructure setup. This appendix walks through what was provisioned and how, so you can reproduce the pattern in your own environment. The workshop source code lives in the [docs](https://github.com/microsoft/Build26-LAB510-take-llms-from-prototype-to-production-on-aks) directory of the microsoft/Build26-LAB510-take-llms-from-prototype-to-production-on-aks repository.
 
 ### What the Infrastructure Looks Like
 
@@ -83,7 +83,7 @@ graph TD
 
 Each child Application can pull from a different source: plain YAML in a Git repo for custom manifests, or upstream Helm charts for third-party operators like Dynamo, KAITO, and KubeRay. Argo CD unifies them into a single reconciliation loop.
 
-The root Application is defined in [`demos/workshop/manifests/app-of-apps.yaml`](https://github.com/kaito-project/airunway/tree/main/demos/workshop/manifests/app-of-apps.yaml). It points at the `demos/workshop/manifests/argocd/apps/` directory, where each child Application YAML lives. Terraform applies this manifest automatically after installing Argo CD (see `kubectl_manifest.argo_cd_app` in `main.tf`).
+The root Application is defined in [`src/manifests/app-of-apps.yaml`](https://github.com/microsoft/Build26-LAB510-take-llms-from-prototype-to-production-on-aks/src/manifests/app-of-apps.yaml). It points at the `src/manifests/argocd/apps/` directory, where each child Application YAML lives. Terraform applies this manifest automatically after installing Argo CD (see `kubectl_manifest.argo_cd_app` in `main.tf`).
 
 This means you can bootstrap an entire inference platform on a fresh cluster with a single manifest:
 
@@ -91,7 +91,7 @@ This means you can bootstrap an entire inference platform on a fresh cluster wit
 kubectl apply -f app-of-apps.yaml
 ```
 
-Argo CD handles the rest, using **sync waves** to control deployment order so dependencies are satisfied before anything references them. Each child Application is defined in [`demos/workshop/manifests/argocd/apps/`](https://github.com/kaito-project/airunway/tree/main/demos/workshop/manifests/argocd/apps):
+Argo CD handles the rest, using **sync waves** to control deployment order so dependencies are satisfied before anything references them. Each child Application is defined in [`src/manifests/argocd/apps/`](https://github.com/microsoft/Build26-LAB510-take-llms-from-prototype-to-production-on-aks/src/manifests/argocd/apps):
 
 | Wave   | Application  | What It Deploys                                                                                                                                                                                       |
 | ------ | ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -107,7 +107,7 @@ Chart names, versions, and Helm values are specified in each child Application Y
 
 ### What the AI Runway Manifests Include
 
-The [`demos/workshop/manifests/airunway/`](https://github.com/kaito-project/airunway/tree/main/demos/workshop/manifests/airunway) directory contains three subdirectories that the `airunway` Argo CD Application deploys together:
+The [`src/manifests/airunway/`](https://github.com/microsoft/Build26-LAB510-take-llms-from-prototype-to-production-on-aks/src/manifests/airunway) directory contains three subdirectories that the `airunway` Argo CD Application deploys together:
 
 - **`controller/`**: The core AI Runway controller, including namespace (`airunway-system`), RBAC, Deployment, Kustomize overlay for image pinning, and ServiceMonitors for Prometheus scraping
 - **`providers/`**: Out-of-tree provider controllers (Dynamo, KAITO, KubeRay, llm-d), each with its own namespace, RBAC, and Deployment. Also includes PodMonitors for inference engine metrics and a Lustre-backed PVC (`dynamo-pvc`) for shared model weight caching
