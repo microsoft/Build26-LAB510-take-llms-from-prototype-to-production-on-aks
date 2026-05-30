@@ -37,54 +37,63 @@ Once your content is in the repo, use these three phrases with Copilot to build 
 
 # [Microsoft Build 2026](https://build.microsoft.com)
 
-## 🔥 BRKXXX: SESSION TITLE
+## 🔥 [LAB510: Take LLMs from prototype to production on AKS](https://build.microsoft.com/sessions/LAB510)
 
 ### Session Description
 
-*Add Session Description*
+Moving an AI model from experiment to production is hard. Learn about AI Runway, an open-source accelerator that simplifies deploying LLMs on Azure Kubernetes Service (AKS). By treating models as native Kubernetes resources, AI Runway offers a single interface that adapts to multiple inference backends. You’ll deploy a production LLM on AKS, implement custom resources for scaling and networking, configure GPU and latency monitoring, and integrate it into CI/CD pipelines.
 
-### 🏫 Getting started in a guided session
+### 🏠 Getting started
 
-To get started in a guided lab session:
-- <!-- step 1 -->
-- <!-- step 2 -->
-- <!-- step 3 -->
-
-### 🏠 Getting started in your own environment
-
-If you're following these steps at your own pace:
+To get started with this lab:
 - Clone this repository
-- Set up your development environment
-- <!-- step 3 -->
+- Install the [required tools](docs/README.md#required-tools) (Azure CLI, kubectl, Bun, Helm, jq, yq)
+- Provision infrastructure using the Terraform configuration in `src/infra/` (requires an Azure subscription with GPU quota)
+- Connect to your AKS cluster and start with [Module 1: First Deployment & Core Concepts](docs/1-core-concepts.md)
 
 ### 🧠 Learning Outcomes
 
-By the end of this session, you will be able to:
+By the end of this lab, you will be able to:
 
-- <!-- outcome 1 -->
-- <!-- outcome 2 -->
-- <!-- outcome 3 -->
+- Deploy LLMs on AKS using AI Runway's ModelDeployment custom resource
+- Configure disaggregated serving and shared model caching for production workloads
+- Route inference traffic to multiple models through a single gateway endpoint
+- Connect developer tools to self-hosted OpenAI-compatible model endpoints
+- Monitor inference deployments with Prometheus metrics and DORA indicators
 
 ### 💬 Keep Learning with Copilot
 
-Try these prompts with GitHub Copilot to explore the topics from this session. Open Copilot Chat in VS Code (`Ctrl+Alt+I` on Windows/Linux, `Cmd+Shift+I` on Mac), paste a prompt, and see what you learn. Try connecting the [Microsoft Learn MCP Server](#-microsoft-learn-mcp-server) for the latest official documentation.
+Try these prompts with GitHub Copilot to explore the topics from this lab. Open Copilot Chat in VS Code (`Ctrl+Alt+I` on Windows/Linux, `Cmd+Shift+I` on Mac), paste a prompt, and see what you learn. Try connecting the [Microsoft Learn MCP Server](#-microsoft-learn-mcp-server) for the latest official documentation.
 
 Use these as a starting point — or write your own!
 
-<!-- Prompts will be tailored to this session's content during repo setup. -->
-
-> *Prompts coming soon — check back after the session content is finalized.*
+- "How does AI Runway decide which inference provider to use for a ModelDeployment?"
+- "What is disaggregated prefill/decode and when should I use it?"
+- "How does the Gateway API Inference Extension route requests to different models?"
+- "Write a ModelDeployment manifest that deploys a model on GPU with vLLM"
+- "What are the DORA metrics for AI inference platforms and how do I track them?"
 
 ### 💻 Technologies Used
 
-1. <!-- technology 1 -->
-1. <!-- technology 2 -->
-1. <!-- technology 3 -->
+1. [Azure Kubernetes Service (AKS)](https://learn.microsoft.com/azure/aks/)
+1. [AI Runway](https://github.com/kaito-project/airunway)
+1. [KAITO (Kubernetes AI Toolchain Operator)](https://github.com/kaito-project/kaito)
+1. [NVIDIA Dynamo](https://developer.nvidia.com/dynamo)
+1. [Gateway API Inference Extension](https://gateway-api-inference-extension.sigs.k8s.io/)
+1. [Azure Managed Lustre](https://learn.microsoft.com/azure/azure-managed-lustre/)
+1. [Argo CD](https://argo-cd.readthedocs.io/)
+1. [Prometheus & Grafana](https://prometheus.io/)
 
 ### 📚 Resources and Next Steps
 
 | Resource | Description |
 |:---------|:------------|
+| [AI Runway GitHub Repository](https://github.com/kaito-project/airunway) | Open-source accelerator for deploying LLMs on Kubernetes |
+| [KAITO Project](https://github.com/kaito-project/kaito) | Kubernetes AI Toolchain Operator (CNCF Sandbox) |
+| [Gateway API Inference Extension](https://gateway-api-inference-extension.sigs.k8s.io/) | Inference-aware routing for Kubernetes Gateway API |
+| [Deploy AI models on AKS with KAITO](https://learn.microsoft.com/azure/aks/ai-toolchain-operator) | Microsoft Learn documentation for KAITO on AKS |
+| [Use GPU-based workloads on AKS](https://learn.microsoft.com/azure/architecture/reference-architectures/containers/aks-gpu/gpu-aks) | Reference architecture for GPU workloads on AKS |
+| [Azure Managed Lustre](https://learn.microsoft.com/azure/azure-managed-lustre/amlfs-overview) | High-performance shared storage for model caching |
 | [https://aka.ms/build26-next-steps](https://aka.ms/build26-next-steps) | Take the next step in your learning journey after Build 2026 |
 
 
@@ -100,17 +109,12 @@ For more information, setup instructions for other dev clients, and to post comm
 
 ## Content Owners
 
-<!-- TODO: Add yourself as a content owner
-1. Change the src in the image tag to {your github url}.png
-2. Change INSERT NAME HERE to your name
-3. Change the github url in the final href to your url. -->
-
 <table>
 <tr>
-    <td align="center"><a href="http://github.com/yourGitHubHandle">
-        <img src="https://github.com/yourGitHubHandle.png" width="100px;" alt="INSERT NAME HERE"/><br />
-        <sub><b>INSERT NAME HERE</b></sub></a><br />
-            <a href="https://github.com/yourGitHubHandle" title="talk">📢</a>
+    <td align="center"><a href="https://github.com/pauldotyu">
+        <img src="https://github.com/pauldotyu.png" width="100px;" alt="Paul Yu"/><br />
+        <sub><b>Paul Yu</b></sub></a><br />
+            <a href="https://github.com/pauldotyu" title="talk">📢</a>
     </td>
 </tr></table>
 
