@@ -93,9 +93,7 @@ Navigate to the **Dashboard import page** at `http://localhost:3000/dashboard/im
 
 Use the dashboard JSON file included in the repo: **demos/observability/sample-dashboard.json**.
 
-Click in the **Upload dashboard JSON file** area then type `\\\wsl.localhost\Ubuntu\home\labuser\airunway\demos\observability` in the Windows Explorer address bar then press **enter**. You should see the `sample-dashboard.json` file. Click on the file, then click the **Open** button.
-
-!IMAGE[c94yu7sx.png](instructions342912/c94yu7sx.png)
+Click in the **Upload dashboard JSON file** area then locate the `sample-dashboard.json` in your file system. Click on the file, then click the **Open** button.
 
 > [!TIP]
 > If the browser file picker cannot browse to your WSL files, open **demos/observability/sample-dashboard.json** in VS Code, copy the full contents, paste it into the **Import via dashboard JSON model** text box, then click **Load**.

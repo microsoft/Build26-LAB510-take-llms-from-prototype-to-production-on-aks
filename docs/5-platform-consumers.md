@@ -80,7 +80,7 @@ Enter the following prompt: `Tell me everything I need to know about AI Runway`
 
 VS Code supports [custom language model configurations](https://code.visualstudio.com/docs/copilot/customization/language-models) that let Copilot use your self-hosted models.
 
-Run the following command in your WSL terminal to get the gateway IP:
+Run the following command in your terminal to get the gateway IP:
 
 ```bash
 GATEWAY_IP=$(kubectl get gateway -n istio-system inference-gateway -o jsonpath='{.status.addresses[0].value}')
@@ -112,7 +112,7 @@ EOF
 ```
 
 > [!TIP]
-> The path above points to the VS Code settings folder on the Windows filesystem, accessed from WSL via `/mnt/c/`. If you're running VS Code natively on Linux or macOS, the path would be different (for example, `~/.config/Code/User/` on Linux).
+> The path above points to the VS Code settings folder on the Windows filesystem, accessed from WSL via `/mnt/c/`. If you're running VS Code Insiders natively on Linux or macOS, the path would be different (for example, `~/.config/Code/User/` on Linux and , `~/Library/Application Support/Code/User` on macOS).
 
 This tells VS Code where to find your self-hosted model so Copilot can use it instead of the default cloud-hosted models. No manual editing needed.
 
