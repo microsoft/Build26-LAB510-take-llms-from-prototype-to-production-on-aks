@@ -4,7 +4,7 @@ This lab was pre-provisioned so you could focus on AI Runway rather than infrast
 
 ### What the Infrastructure Looks Like
 
-The Terraform code in `demos/workshop/infra/main.tf` bootstraps the underlying Azure infrastructure and platform services. Here is a high-level architecture diagram of what it creates:
+The Terraform code in `src/infra/main.tf` bootstraps the underlying Azure infrastructure and platform services. Here is a high-level architecture diagram of what it creates:
 
 ```mermaid
 graph LR
