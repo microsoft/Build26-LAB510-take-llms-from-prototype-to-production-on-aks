@@ -96,7 +96,7 @@ Use the dashboard JSON file included in the repo: **demos/observability/sample-d
 Click in the **Upload dashboard JSON file** area then locate the `sample-dashboard.json` in your file system. Click on the file, then click the **Open** button.
 
 > [!TIP]
-> If the browser file picker cannot browse to your WSL files, open **demos/observability/sample-dashboard.json** in VS Code, copy the full contents, paste it into the **Import via dashboard JSON model** text box, then click **Load**.
+> You can also open **demos/observability/sample-dashboard.json** in VS Code, copy the full contents, paste it into the **Import via dashboard JSON model** text box, then click **Load**.
 
 Select the **Prometheus** data source and click **Import**.
 
