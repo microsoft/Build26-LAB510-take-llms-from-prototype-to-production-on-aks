@@ -1,0 +1,33 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: airunway
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  sources:
+    - name: controller
+      repoURL: https://github.com/microsoft/Build26-LAB510-take-llms-from-prototype-to-production-on-aks.git
+      targetRevision: HEAD
+      path: src/manifests/airunway/controller
+    - name: providers
+      repoURL: https://github.com/microsoft/Build26-LAB510-take-llms-from-prototype-to-production-on-aks.git
+      targetRevision: HEAD
+      path: src/manifests/airunway/providers
+    - name: gateway
+      repoURL: https://github.com/microsoft/Build26-LAB510-take-llms-from-prototype-to-production-on-aks.git
+      targetRevision: HEAD
+      path: src/manifests/airunway/gateway
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - ServerSideApply=true

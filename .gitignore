@@ -4,10 +4,6 @@ Template files will not be tracked by git.
 *.bak
 *.tmp
 
-# Source materials folder — contents excluded, README tracked
-_remove-before-publish/*
-!_remove-before-publish/README.md
-
 # OS files
 .DS_Store
 Thumbs.db
@@ -27,3 +23,6 @@ node_modules/
 __pycache__/
 *.pyc
 .venv/
+
+
+**/*.pem
