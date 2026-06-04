@@ -5,5 +5,4 @@ resources:
 - prometheus.yaml
 images:
 - name: ghcr.io/kaito-project/airunway/controller
-  newName: ghcr.io/pauldotyu/airunway/controller
-  newTag: 849c487 #dev-1779996256
+  newTag: 0.6.0

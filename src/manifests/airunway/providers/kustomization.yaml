@@ -11,15 +11,11 @@ resources:
 - llmd-podmonitor.yaml
 images:
 - name: ghcr.io/kaito-project/airunway/dynamo-provider
-  newName: ghcr.io/pauldotyu/airunway/dynamo-provider
-  newTag: dceff79
+  newTag: v0.3.0
 - name: ghcr.io/kaito-project/airunway/kaito-provider
-  newName: ghcr.io/pauldotyu/airunway/kaito-provider
-  newTag: 849c487
+  newTag: v0.3.0
 - name: ghcr.io/kaito-project/airunway/kuberay-provider
-  newName: ghcr.io/pauldotyu/airunway/kuberay-provider
-  newTag: dev-1779594281
+  newTag: v0.3.0
 - name: ghcr.io/kaito-project/airunway/llmd-provider
-  newName: ghcr.io/pauldotyu/airunway/llmd-provider
-  newTag: 849c487
+  newTag: v0.3.0
 
