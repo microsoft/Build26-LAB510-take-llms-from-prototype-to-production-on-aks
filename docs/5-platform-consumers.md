@@ -90,7 +90,7 @@ echo "Gateway IP: $GATEWAY_IP"
 Then write the VS Code language model configuration file with your gateway IP filled in:
 
 ```bash
-cat > "/mnt/c/Users/LabUser/AppData/Roaming/Code - Insiders/User/chatLanguageModels.json" <<EOF
+cat > "/mnt/c/Users/LabUser/AppData/Roaming/Code/User/chatLanguageModels.json" <<EOF
 [
   {
     "name": "OpenAI Compatible",
@@ -112,7 +112,7 @@ EOF
 ```
 
 > [!TIP]
-> The path above points to the VS Code settings folder on the Windows filesystem, accessed from WSL via `/mnt/c/`. If you're running VS Code Insiders natively on Linux or macOS, the path would be different (for example, `~/.config/Code/User/` on Linux and , `~/Library/Application Support/Code/User` on macOS).
+> The path above points to the VS Code settings folder on the Windows filesystem, accessed from WSL via `/mnt/c/`. If you're running VS Code on Linux or macOS, the path would be different (for example, `~/.config/Code/User/` on Linux and , `~/Library/Application Support/Code/User` on macOS).
 
 This tells VS Code where to find your self-hosted model so Copilot can use it instead of the default cloud-hosted models. No manual editing needed.
 
